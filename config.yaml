@@ -1,0 +1,25 @@
+# config.yaml — the single place this repo's configurable working values live.
+#
+# The rule is the sibling FerroStep's, inherited deliberately (owner, 2026-08-20 there):
+# a configurable value is SET here and prose POINTS here — a document that writes a value
+# out is a second copy waiting to drift. That covers the agent TITLES too.
+#
+# `ferrostep agent-env` (or `cargo xtask agent-env` inside FerroStep) is the reader that
+# turns an entry into shell variables; `--agent <title>` selects a non-default entry.
+
+# The entry an unmarked session adopts. CLAUDE.md imports its persona.
+default_agent: developer
+
+# Every agent that works this repo, keyed by title. Identity is a CONVENTION, not a
+# mechanism — git will happily commit as whoever the repo is configured for, so each agent
+# carries the `-c` pair; the procedure and the after-commit check live in the developer
+# persona's §1. The identities below were set by the owner, 2026-08-28.
+agents:
+  developer:
+    name: PJ
+    email: PJ@artificialhumanity.io
+    persona: workflow/DEVELOPER.md
+  reviewer:
+    name: Janis
+    email: janis@artificialhumanity.io
+    persona: workflow/REVIEWER.md

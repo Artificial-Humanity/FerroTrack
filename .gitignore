@@ -1,0 +1,7 @@
+# Store connection details (URL, token) are invocation parameters, never repo
+# contents — this is a public repo. .ferrostep/ is the untracked local home for
+# them when a file is needed at all.
+.ferrostep/
+
+# Rust build output (the crate is coming; the ignore predates it on purpose).
+target/

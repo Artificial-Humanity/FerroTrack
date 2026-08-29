@@ -1,0 +1,12 @@
+{
+  "name": "ferrotrack_research",
+  "type": "base",
+  "fields": [
+    { "name": "title", "type": "text", "required": true, "max": 200 },
+    { "name": "body", "type": "text", "max": 200000 },
+    { "name": "state", "type": "select", "maxSelect": 1, "required": true,
+      "values": ["open", "researching", "under_review", "collected", "disputed", "escalated", "dropped"] },
+    { "name": "version", "type": "number", "onlyInt": true },
+    { "name": "research_passes", "type": "number", "onlyInt": true }
+  ]
+}

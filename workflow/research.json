@@ -1,0 +1,27 @@
+{
+  "name": "ferrotrack-research",
+  "purpose": "AGENTS.md@main",
+  "roles": ["researcher", "reviewer", { "name": "owner", "human": true }],
+  "states": ["open", "researching", "under_review", "collected", "disputed", "escalated", "dropped"],
+  "initial": "open",
+  "terminal": ["collected", "dropped"],
+  "halted": ["disputed", "escalated"],
+  "counters": [
+    { "name": "research_passes", "max": 3, "on_exhausted": "escalated" }
+  ],
+  "transitions": [
+    { "from": "open", "to": "researching", "role": "researcher", "spends": ["research_passes"] },
+    { "from": "open", "to": "disputed", "role": "researcher", "requires_note": true },
+    { "from": "researching", "to": "under_review", "role": "researcher" },
+    { "from": "researching", "to": "escalated", "role": "researcher", "requires_note": true },
+    { "from": "under_review", "to": "collected", "role": "reviewer" },
+    { "from": "under_review", "to": "open", "role": "reviewer" },
+    { "from": "under_review", "to": "disputed", "role": "reviewer", "requires_note": true },
+    { "from": "disputed", "to": "open", "role": "owner", "resets": ["research_passes"], "requires_note": true },
+    { "from": "disputed", "to": "collected", "role": "owner" },
+    { "from": "disputed", "to": "dropped", "role": "owner" },
+    { "from": "escalated", "to": "open", "role": "owner", "resets": ["research_passes"], "requires_note": true },
+    { "from": "escalated", "to": "dropped", "role": "owner" },
+    { "from": "open", "to": "dropped", "role": "owner" }
+  ]
+}
