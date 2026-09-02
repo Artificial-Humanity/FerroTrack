@@ -217,7 +217,10 @@ repository description at creation (2026-08-28).
    2026-08-19/20: every product repo carries one, under exactly that filename). Its
    Vision section is the owner's to write or ratify. It is deliberately absent rather
    than agent-drafted from a one-line description.
-4. **No process is adopted here yet.** No `workflow/` persona, no review lane — the
-   review lane is piloted in Sonora only, and FerroStep adopted the identity portion
-   only (workspace `AGENTS.md` §3). Until the owner directs otherwise, work here is
-   owner-directed: ask rather than inventing a process.
+4. **No review lane is adopted here.** The `workflow/` personas are the IDENTITY
+   portion only — who commits as whom, per `config.yaml` (decided item 7) — the same
+   shape FerroStep adopted; the review lane itself is piloted in Sonora only (workspace
+   `AGENTS.md` §3). ⚠ An earlier revision of this line said "no `workflow/` persona";
+   that was true on 2026-08-28 and stale the same day the personas landed. Until the
+   owner directs otherwise, work here is owner-directed: ask rather than inventing a
+   process.
