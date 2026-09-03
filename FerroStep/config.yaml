@@ -18,11 +18,11 @@ agents:
   developer:
     name: PJ
     email: PJ@artificialhumanity.io
-    persona: workflow/DEVELOPER.md
+    persona: personas/DEVELOPER.md
   reviewer:
     name: Janis
     email: janis@artificialhumanity.io
-    persona: workflow/REVIEWER.md
+    persona: personas/REVIEWER.md
     # How the reviewer is LAUNCHED (owner, 2026-09-02: Fable 5.1 at high; lowered to medium
     # 2026-09-03, token usage at high measured too costly) — the same keys
     # Sonora's roster carries, so a launcher pointed at this repo finds them in the one

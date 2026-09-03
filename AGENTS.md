@@ -93,7 +93,7 @@ repository description at creation (2026-08-28).
      resident.
    - **Identity (owner, 2026-08-28; email domain corrected to the house `.io` the same
      day): the resident holds the `developer` entry and a second agent holds `reviewer`.**
-     Both identities are SET in [`config.yaml`](config.yaml), the one copy — prose points
+     Both identities are SET in [`config.yaml`](FerroStep/config.yaml), the one copy — prose points
      there and deliberately restates no value. The `ferrostep` binary is installed from the sibling
      checkout at `c475ed5` (clean tree; reinstalled 2026-08-29 when the create guard
      landed — the emission lives in the generator, so an old emitter reads a config
@@ -217,8 +217,8 @@ repository description at creation (2026-08-28).
    2026-08-19/20: every product repo carries one, under exactly that filename). Its
    Vision section is the owner's to write or ratify. It is deliberately absent rather
    than agent-drafted from a one-line description.
-4. **No review lane is adopted here.** The `workflow/` personas are the IDENTITY
-   portion only — who commits as whom, per `config.yaml` (decided item 7) — the same
+4. **No review lane is adopted here.** The `FerroStep/personas/` files are the IDENTITY
+   portion only — who commits as whom, per `FerroStep/config.yaml` (decided item 7) — the same
    shape FerroStep adopted; the review lane itself is piloted in Sonora only (workspace
    `AGENTS.md` §3). ⚠ An earlier revision of this line said "no `workflow/` persona";
    that was true on 2026-08-28 and stale the same day the personas landed. Until the
