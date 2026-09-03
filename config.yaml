@@ -23,7 +23,8 @@ agents:
     name: Janis
     email: janis@artificialhumanity.io
     persona: workflow/REVIEWER.md
-    # How the reviewer is LAUNCHED (owner, 2026-09-02: Fable 5.1 at high) — the same keys
+    # How the reviewer is LAUNCHED (owner, 2026-09-02: Fable 5.1 at high; lowered to medium
+    # 2026-09-03, token usage at high measured too costly) — the same keys
     # Sonora's roster carries, so a launcher pointed at this repo finds them in the one
     # place. ⚠ DECLARATION, NOT YET AN INSTANCE: nothing in this repo reads them today.
     # `ferrostep agent-env` tolerates unknown keys and ignores them, and no review lane
@@ -33,4 +34,4 @@ agents:
     # before reading them as configured behaviour. The developer entry deliberately has
     # none: that agent's model is set at runtime by the owner.
     model: claude-fable-5-1
-    effort: high        # the claude CLI's ladder: low | medium | high | xhigh | max
+    effort: medium      # the claude CLI's ladder: low | medium | high | xhigh | max
