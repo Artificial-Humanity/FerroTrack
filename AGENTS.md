@@ -19,15 +19,104 @@ repository description at creation (2026-08-28).
    (`ferrostep-pocketbase` and `ferrostep-sqlite`) as the DEFAULT, and neither is
    retired** — "replacement" means the option you get without choosing, never the ones
    that stop being maintained. Consequence: FerroStep's two-implementation floor gets
-   *stronger*, not retired — when the contract is awkward for redb, the move is never
-   "bend the trait toward the native store."
-2. **Backing store: UNDECIDED — that is the whole ruling** (owner, 2026-08-28). Names
-   mentioned so far — redb (hypothetical), LibSQL, SurrealDB, a first-party store — are
-   **examples, explicitly not exhaustive and not a shortlist**; do not treat the
-   candidate set as narrowed. [`notes/redb-research.md`](notes/redb-research.md)
-   characterizes the redb candidate and doubles as the evaluation template;
-   [`notes/ferrostep-contract-fit.md`](notes/ferrostep-contract-fit.md) carries the
-   store-neutral acceptance bar every candidate must meet.
+   *stronger*, not retired — when the contract is awkward for whichever store FerroTrack
+   lands on, the move is never "bend the trait toward the native store."
+2. ✅ **SETTLED (owner, 2026-09-04): the stack is `redb` + `axum` + `tokio`, with the
+   fjall equivalent (`fjall` + `axum` + `tokio`) retained as the SECONDARY consideration.**
+   This closes the backing-store question opened 2026-08-28. ⚠ **Secondary means ranked
+   second and still live — fjall is NOT eliminated**, and it is the named fallback if the
+   checks below go against redb.
+   - ⚠⚠ **What the settlement RESTS ON, recorded so it can be revisited deliberately rather
+     than silently:** characterization, **not measurement**. Two things were owed at the
+     moment of the ruling and are still owed:
+     1. ⚠ **redb's maintainer concentration is UNVERIFIED.** It was flagged as an
+        impression, not a finding, and named as the single check to run before committing.
+        A genuine bus-factor-of-one is the condition under which the secondary becomes the
+        primary — in a component whose failure mode is silent data loss.
+     2. ⚠ **The acceptance bar in [`notes/ferrostep-contract-fit.md`](notes/ferrostep-contract-fit.md)
+        is unmeasured on redb** — above all the conditional update evaluated INSIDE the
+        transaction, tested at the call site with a control so a conflict-free pass cannot
+        be mistaken for a vacuous one. That measurement outranks the reasoning that
+        produced this ruling.
+   - **Why redb over fjall** (full comparison in [`notes/store-criteria.md`](notes/store-criteria.md)):
+     ACID single-writer is redb's default and cannot be opted out of, where fjall's
+     transactions are opt-in with a **silent** non-transactional path — a weak guarantee in
+     a codebase agents contribute to. fjall's clearest advantage, compaction filters,
+     deflated on inspection: it saves the sweep *job*, not the logic (liveness and
+     deliverability are read-time questions either way), and item 9's scheduling machinery
+     makes periodic sweeps nearly free. Plus 56 crates against 84, one file on disk, and
+     `MultimapTable` fitting both the structured indexes and phase-2 postings lists.
+   - ⚠ **`axum` and `tokio` entered this record as a MEASUREMENT ASSUMPTION and were never
+     independently evaluated.** They were the stand-in for "a server layer" when the
+     whole-product dependency stacks were measured, and the ruling adopted them along with
+     the store. tokio is near-inevitable for async Rust; **axum is one of several reasonable
+     choices that were never compared.** Flagged as a gap in the evaluation, not as an
+     objection to the ruling.
+   - ✅ **The settled stack excludes tantivy**, which places search at phases 0–2 of the
+     roadmap in `notes/store-criteria.md`: structured indexes, then prefix/substring find,
+     then a hand-built inverted index with field weighting. ⚠ **This does not settle
+     search** — decisions (b) the exposed query surface and (c) the consistency model
+     remain open; only (d), the retained fields, is answered. Tantivy remains the phase-3
+     option and stays **backfillable** because (d) retains the text.
+   - **History of the decision, kept because the reasoning is the useful part:** undecided
+     from 2026-08-28; SurrealDB named front runner and scratched within 2026-09-03 on
+     measured dependency weight; redb and fjall compared as full stacks 2026-09-03/04;
+     settled 2026-09-04.
+   - **What it was scratched ON, so the ruling can be revisited deliberately rather than
+     silently:** 305 resolved crates on its most minimal configuration against redb's 1,
+     and a C toolchain that is **hard-coded per target family rather than feature-gated**,
+     so a consumer cannot switch it off. ✅ Upstream ships a pure-Rust path for wasm, so
+     if that selection ever becomes a feature the dependency objection changes shape. That
+     is the condition; it has not happened.
+   - ✅ **Licence question, RULED ADEQUATE by the owner 2026-09-03** and recorded even
+     though the candidate is out, because it was a real ruling and the candidate could
+     return: SurrealDB's core is BSL-1.1, not an open-source licence, converting to
+     Apache-2.0 four years per release. ⚠ Ruled against BSL-1.1 specifically; an upstream
+     relicence would be a new fact. ⚠ **The scratch was NOT on licence grounds** — the two
+     must not be conflated later.
+   - **What the store is FOR — the owner's stated requirements (2026-09-03). These are the
+     product-side half of the acceptance bar, and they outlived the candidate that
+     prompted them:**
+     1. **Issue tracking, in the SQLite-to-PocketBase relation.** FerroTrack occupies
+        PocketBase's seat — the product — and the store is the engine underneath it.
+     2. **A light install: embedded into the project, or carried as a project asset.** The
+        same bar item 8 sets for the installer, arriving from the other direction.
+     3. **Pub-sub, ideally — to carry inter-agent communication routing.** Stated as a
+        preference; see the ruling below for where it now lives.
+     4. **Rust-built, with minimal dependencies — ideal.** ⚠ **Two separate tests.** The
+        scratched candidate passed the first easily and failed the second by two orders of
+        magnitude, which is the whole reason to keep them apart.
+   - ✅ **RULED (owner, 2026-09-03): FERROTRACK provides the pub-sub model, not the
+     store.** This settles the layer question that the store decision was turning on, and
+     it **widens the candidate set rather than narrowing it**: the engine no longer needs
+     native pub-sub, only embedded operation, ACID, a conditional update evaluated inside
+     the transaction, and a point at which FerroTrack can observe its own writes.
+     ⚠ Consequence worth stating, because it is a *gain* and reads like a loss: a store's
+     lack of watch/subscribe is no longer a defect against it.
+     ⚠⚠ **Boundary unchanged: the inter-agent messaging system itself is the owner's design
+     space and spans more than this repo.** This ruling says which layer owns pub-sub. It
+     does not design the routing, name an addressing scheme, or settle which component
+     hosts it — and this repo's resident does not open that.
+   - ✅ **Dependency weight, MEASURED 2026-09-03** (resolved graphs, minimal feature sets,
+     no build — method and fairness caveat in the SurrealDB note): **redb 1 crate (zero
+     dependencies); rusqlite-bundled 9; sled 16; fjall 41; libsql 136; SurrealDB 305.**
+     ⚠ Read across scopes carefully: redb is a key-value store and SurrealDB a whole
+     database, so much of that tree is machinery FerroTrack would pull in anyway. What
+     survives the caveat is the C requirement and *inherited versus chosen* — 305 arrive
+     as a set.
+   - **Candidate research:** [`notes/redb-research.md`](notes/redb-research.md) is the
+     evaluation template every candidate is written against;
+     [`notes/surrealdb-research.md`](notes/surrealdb-research.md) is the scratched
+     candidate, kept as evidence. [`notes/ferrostep-contract-fit.md`](notes/ferrostep-contract-fit.md)
+     carries the store-neutral acceptance bar. ⚠⚠ **No candidate has been evaluated
+     against that bar — both notes are characterization.** The one hard number in the
+     whole evaluation is the dependency measurement above.
+   - ⚠ **The over-read this repo keeps meeting is now RESOLVED, not merely warned about.**
+     Three earlier corrections turned on "use redb" being read as "redb decided"; as of
+     2026-09-04 redb **is** decided, by the owner, on a recorded comparison. The warning is
+     retired — but the shape it taught is not: **a question is not a ruling, and an
+     agent's recommendation is not one either.** This one became a ruling because the owner
+     made it, on a date, in words this file quotes.
 3. **Same licence file as FerroStep** — Apache-2.0, copied verbatim.
 4. **Research first.** No full architecture on the spot; the current phase produces
    research, not commitments.
@@ -202,6 +291,72 @@ repository description at creation (2026-08-28).
    installer's concrete shape waits on the backing-store decision (item 2) — flagged,
    not asserted: how much installing costs an adopter is itself a property stores
    differ on, so the evaluation bar may want a line for it.
+
+9. **What FerroTrack is FOR — the product brief** (owner, 2026-09-03, stated to enable a
+   proper evaluation of the stack). Five things, in the owner's order:
+   1. **Issue management** — PocketBase-like, but tailor-made for agents.
+   2. **Inter-agent communications routing, on a REGISTRY.** Agents starting up under
+      FerroStep management register themselves in the FerroTrack registry, and that one
+      registry serves **both** issue-tracking and comms routing. ⚠⚠ **Explicitly
+      INTER-BRAND** — Codex, Gemini, Grok, Muse and others "all play together". The
+      owner's note on the gap this fills: Claude Code has built-in messaging between
+      agents but **no registry**.
+   3. **A wake-up mechanism** — agents must be able to be *awakened* when a communication
+      arrives. An extension of item 2, not a separate feature.
+   4. **Task scheduling** — tasks handed to persistent agents at a scheduled time,
+      arriving as another wake-up message, but originated by the system or a human user
+      rather than by another agent.
+   5. ⚠ **Usable standalone.** FerroTrack is a dependency for FerroStep, but a user who
+      wants only FerroTrack's features — without FerroStep's workflow management — must
+      be able to run it on its own. **This is a product requirement, not an aspiration.**
+   - **Evaluation latitude the owner granted the same day** — what the *store* is allowed
+     to not do. ⚠ **Corrected by the owner within the day, and the correction is the
+     version that binds**: the first statement of this latitude named FerroStep as the
+     carrier of these features; **it is FERROTRACK that carries them.** Recorded because
+     the earlier wording would otherwise support a contradiction with requirement 5 that
+     does not exist — do not re-derive one from it.
+     1. ✅ **FerroTrack surfaces the feature; the database may merely FACILITATE it.**
+        Full-text search is FerroTrack's to support. Pub/sub likewise: a store with
+        something like SurrealDB's open (live) queries facilitates it, and a store without
+        one does not prevent it — **the feature is surfaced by FerroTrack either way.**
+        ⚠⚠ **So the real evaluation axis is the owner's own question: HOW MUCH OF THE
+        PLUMBING DOES FERROTRACK HANDLE?** Not "which features does the store have" —
+        every feature in item 9 is FerroTrack's to present regardless. See
+        [`notes/store-criteria.md`](notes/store-criteria.md), which is organised on that
+        axis and carries the measurement.
+     2. **Other databases may be considered** if they support these features more readily
+        and spare FerroTrack the plumbing.
+     3. ✅ **Building a new product on a permissively-licensed base is on the table**
+        (owner's clarification, 2026-09-03: by "forking" he meant *creating a new product
+        using an existing permissively-licensed product as a base* — not maintaining a
+        divergent copy of someone else's tree), rebranded (FerroStore, FerroData).
+        ⚠ **Conditional, and the condition is the owner's: "only if the arguments for it
+        are compelling enough."** ⚠ Verified 2026-09-03: **redb, sled and fjall are all
+        `MIT OR Apache-2.0`**, so the base is permitted and compatible with standing rule 2.
+   - ✅ **Requirement 5 is not in tension with the latitude above** — once the features are
+     FerroTrack's, a standalone FerroTrack has them by construction. Recorded positively
+     because an earlier revision of this item claimed the opposite at length.
+   - ⚠⚠ **Requirements 3 and 4 are not database features and no store choice will supply
+     them.** A database can notify a *connected* subscriber; it cannot start a process
+     that is not running, and it cannot run anything at a scheduled time by itself. Both
+     need a **resident FerroTrack process**. Combined with requirement 2's inter-brand
+     goal — agents in other vendors' runtimes cannot link a Rust crate, so the interface
+     must be a network protocol rather than an API — the shape the brief implies is
+     **FerroTrack as a server with an embedded store**, which is what requirement 1's
+     PocketBase analogy said all along. ✅ **Consequence for the evaluation: the database
+     question gets SMALLER, not larger.** See [`notes/store-criteria.md`](notes/store-criteria.md).
+   - ⚠ **Requirement 3 has a known tension with item 8's bar.** Waking an agent whose
+     process is not running means something must *spawn* it — per host, per vendor, with
+     that vendor's own launch command and credentials. A component that can start
+     arbitrary processes is close to the kind of broad grant item 8 exists to avoid.
+     Flagged, unresolved.
+   - ⚠ **A prior owner ruling on agent ADDRESSING exists outside this repo** (2026-09-02)
+     and bears directly on requirement 2. It has **deliberately not been imported**: item 6
+     says a ruling from elsewhere enters this repo on its own merits, individually, or not
+     at all, and standing rule 1 bars lab-internal material. Ask the owner to restate it
+     here if it is to bind this repo.
+   - **This brief is the first material that could fill `north-star.md`** (standing rule
+     3). Not drafted: §1 Vision is the owner's to write or ratify.
 
 ## Standing rules that already bind this repo
 

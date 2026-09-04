@@ -1,14 +1,33 @@
 # redb as FerroTrack's backing store — research
 
-**Status: candidate research — the store is UNDECIDED, and that is the whole of the
-ruling** (owner, 2026-08-28: "I don't expect you to fully architect the solution on the
-spot. I just want research for now"; and, same day, that redb is *hypothetical* — LibSQL,
-SurrealDB, or a first-party store were named as possibilities, **explicitly not
-exhaustively**: the candidate set is open, not narrowed to the names mentioned). An earlier revision of this paragraph called redb "the owner's
-directed choice, not a shortlist candidate"; that read too much into the first instruction
-and is withdrawn. This note now characterizes the redb *candidate*, and its structure — the
+✅ **Status: SELECTED (owner, 2026-09-04) — redb is FerroTrack's backing store**, in the
+stack `redb` + `axum` + `tokio`, with the fjall equivalent retained as the secondary
+consideration. [`AGENTS.md`](../AGENTS.md) item 2 is the one copy of that ruling, of what
+the settlement rests on, and of what would reopen it; this note restates none of it and
+loses to it on any disagreement.
+
+⚠⚠ **Being selected does not make this note verified.** Nothing below has been checked
+against a running redb, and **the acceptance bar is unmeasured** — the ruling was made on
+characterization and says so. The "verify" markers are now work items rather than
+suggestions, and two are named in AGENTS.md as owed: redb's maintainer concentration, and
+the conditional update evaluated inside the transaction, tested at the call site with a
+control.
+
+This note has two jobs. It characterizes the redb *candidate*, and its structure — the
 capability inventory, the obligations-that-move-to-FerroTrack list, and the acceptance-list
-mapping — is the template the other candidates should be evaluated against.
+mapping — is **the template every other candidate is written against**; see
+[`surrealdb-research.md`](surrealdb-research.md), the scratched candidate, kept as evidence
+and readable side by side with this one.
+
+⚠ **Two of its sections postdate the rest and are marked by date**: the fit assessment
+against the owner's four requirements, and the cost section under it, were written
+2026-09-03 after those requirements were stated and after the owner ruled that FerroTrack
+provides the pub-sub model. Everything else is from 2026-08-28.
+
+⚠ **A framing withdrawn 2026-08-28, kept visible because it was a real misread of an
+instruction:** an earlier revision called redb "the owner's directed choice, not a
+shortlist candidate." That read too much into the first instruction. The same over-read is
+available today and would be easier to make — the ban on it is in AGENTS.md item 2.
 
 Facts below were fetched 2026-08-28 from the project's README, docs.rs, and CHANGELOG —
 sources at the bottom. Nothing here has been verified against a running redb yet; that is
@@ -92,8 +111,11 @@ rules entirely (though not hooks); compare-and-swap is only honest when the comp
   strictly better than an external indexer, but it is code we own and must test.
 - **Queries.** No filter language, no full-text search. Scans over snapshot cursors, or
   index tables we design.
-- **Change notification.** No watch/subscribe. A realtime lane (SSE or similar, if agents
-  need it) is an application-layer broadcast we build beside the write path.
+- **Change notification.** No watch/subscribe. A realtime lane is an application-layer
+  broadcast we build beside the write path. ✅ **As of the owner's 2026-09-03 ruling that
+  FerroTrack provides the pub-sub model, this is the plan rather than a gap** — and see
+  the note below on why redb's single-writer property makes that broadcast *sound* rather
+  than best-effort.
 - **Multi-process / HA.** One writer process. `ReadOnlyDatabase` (3.0+) allows other
   processes read-only access — potentially useful for a backup or inspection tool — but
   writes are ours alone. Backup strategy to design: savepoints, compaction
@@ -101,6 +123,83 @@ rules entirely (though not hooks); compare-and-swap is only honest when the comp
 - **Migrations.** Table contents are our bytes; schema evolution discipline is ours. The
   file format itself has an upgrade story; our value encodings need one too (worth deciding
   before the first persisted byte — serde format choice is a compatibility commitment).
+
+## Fit against the owner's four requirements (asked 2026-09-03)
+
+The requirements are listed in [`AGENTS.md`](../AGENTS.md) item 2 and not restated here.
+Scored honestly, redb is the best fit measured so far on three of them, and the fourth is
+where its whole cost sits.
+
+**1. The SQLite-to-PocketBase relation — structurally exact.** This is the relation redb
+is built for: an embedded engine with FerroTrack as the only process that opens it. What
+redb does *not* bring is the part PocketBase gets free from SQLite — a query language and
+indexes. See the cost section below; that is the trade, and it is the whole trade.
+
+**2. Light install — the best possible score, measured.** One crate, **zero dependencies**,
+pure Rust, no C toolchain, one file on disk, ~50 KiB minimum database size. Nothing to
+install, nothing to provision, no external process. Against item 8's bar — an installer
+that must not require broad filesystem grants — a store that is one file the product
+creates is the easiest possible thing to install.
+
+**3. Pub-sub — and redb's structure makes FerroTrack's own broadcast SOUND, not merely
+possible.** This is the non-obvious part and it is why the two rulings of 2026-09-03 fit
+together rather than merely coexist.
+
+A notification layer built above a store is only complete if **every** write passes through
+the code that broadcasts. That is an assumption, and against a store that permits other
+writers it is a false one: a server-mode database with its own auth, an administrative
+credential, a REST path, a second process — each is a write that happens without your
+broadcast running, and the subscriber never learns. The bug is silent and shows up as a
+stale client.
+
+redb removes the assumption instead of documenting it. The FerroTrack process is the only
+door to the file, so "notify beside the write" and "notify on every write" are the same
+statement. ⚠ **VERIFY the corollary** (already on this note's list): a second process
+opening the same file must fail loudly — redb takes a file lock, but probe the actual
+failure mode rather than trusting it.
+
+⚠⚠ **The same property is what the referee's guarantee rests on** (see item 2 of the
+capability mapping above: one write path, structural). So the store gives the referee and
+the notification layer their soundness from one fact, not two. That is a real argument for
+an embedded store over a server-mode one *given* the pub-sub ruling — and it would have
+been an argument against the ruling's alternative, had it gone the other way.
+
+**4. Rust-built with minimal dependencies — the measured floor.** 1 crate, zero
+dependencies. There is no lighter answer available; this is the bottom of the table.
+
+## ⚠⚠ The cost, stated plainly: FerroTrack becomes a small database
+
+Every requirement above is met by redb *not doing things*. The bill arrives here, and it
+should be read before redb is chosen, not after:
+
+- **Secondary indexes are ours.** By state, by assignee, by label, by scope — each is a
+  table FerroTrack maintains transactionally in the same write. Better than an external
+  indexer, and it is code we own, test and keep consistent.
+- **Query and filter behaviour is ours.** No query language. Scans over snapshot cursors,
+  or index tables we design.
+- ⚠ **Full-text search does not exist.** An issue tracker is expected to have search, and
+  this is the largest product-surface gap on the list — larger than it looks next to the
+  others, because it is a *user-visible feature* rather than an internal mechanism.
+  Decide deliberately whether FerroTrack ships search, ships a weaker find, or takes a
+  dependency for it — the last would spend some of the dependency budget redb just won.
+- **Schema evolution is ours**, and ⚠ **the serialisation format is a compatibility
+  commitment from the first persisted byte** — worth deciding before that byte exists.
+- **One writer, one process.** `ReadOnlyDatabase` (3.0+) lets other processes read. This
+  constrains the deployment shape: no second writer, no horizontal scale. For a tracker
+  serving agent workflows that is likely fine — but it is a *product* property, not just
+  an implementation detail, and adopters will meet it.
+
+⚠ **AGENTS.md item 1's hazard inverts here, and the rule's wording was tuned for the other
+case.** Against an opinionated store the danger is bending the ledger contract toward the
+store's semantics. Against a minimal one the danger runs the other way: FerroTrack
+accumulates database machinery, and that machinery leaks into the contract. Same rule,
+opposite direction — worth naming because a reader checking item 1 against redb will find
+its example pointing the wrong way.
+
+✅ **The two-implementation floor gets easier, not harder.** A minimal store means
+FerroTrack implements the ledger contract explicitly rather than mapping it onto another
+database's opinions — which makes it more likely the trait stays honest about what a
+second implementation must provide.
 
 ## The acceptance list this store must meet
 
