@@ -29,10 +29,21 @@ repository description at creation (2026-08-28).
    - ⚠⚠ **What the settlement RESTS ON, recorded so it can be revisited deliberately rather
      than silently:** characterization, **not measurement**. Two things were owed at the
      moment of the ruling and are still owed:
-     1. ⚠ **redb's maintainer concentration is UNVERIFIED.** It was flagged as an
-        impression, not a finding, and named as the single check to run before committing.
-        A genuine bus-factor-of-one is the condition under which the secondary becomes the
-        primary — in a component whose failure mode is silent data loss.
+     1. ✅ **RESOLVED 2026-09-04 — checked, and it does NOT move the ruling.** redb's
+        concentration is real: cberner 1551 commits, next human 32 (~92%). **But the
+        condition as written required the secondary to be better, and it is not.** fjall
+        is marvin-j97 1933 / next human 32, and `lsm-tree` — the crate that actually
+        persists — is marvin-j97 2568 / next human 20. ⚠⚠ **Both candidates are
+        single-maintainer projects in near-identical proportion, so bus-factor-of-one is a
+        property of this CATEGORY, not a discriminator between these two.** On the
+        surrounding signals redb is the safer of the pair: 8 years old against 3, ~2× the
+        stars and forks (4770/237 vs 2304/119), 11 open issues against 39, and pushed the
+        same day this was checked.
+        ✅ **The standing mitigation is already on the record: latitude 3.** The risk is
+        abandonment, the licence is `MIT OR Apache-2.0`, and the owner has already
+        authorised building on a permissive base — so the escape hatch was approved before
+        the risk was measured. ⚠ It stays a real risk, correctly weighted: it is now a
+        reason to keep the fork option live, not a reason to prefer fjall.
      2. ⚠ **The acceptance bar in [`notes/ferrostep-contract-fit.md`](notes/ferrostep-contract-fit.md)
         is unmeasured on redb** — above all the conditional update evaluated INSIDE the
         transaction, tested at the call site with a control so a conflict-free pass cannot
@@ -53,11 +64,30 @@ repository description at creation (2026-08-28).
      choices that were never compared.** Flagged as a gap in the evaluation, not as an
      objection to the ruling.
    - ✅ **The settled stack excludes tantivy**, which places search at phases 0–2 of the
-     roadmap in `notes/store-criteria.md`: structured indexes, then prefix/substring find,
-     then a hand-built inverted index with field weighting. ⚠ **This does not settle
-     search** — decisions (b) the exposed query surface and (c) the consistency model
-     remain open; only (d), the retained fields, is answered. Tantivy remains the phase-3
-     option and stays **backfillable** because (d) retains the text.
+     roadmap in [`notes/store-criteria.md`](notes/store-criteria.md).
+   - ✅ **SEARCH IS NOW FULLY DECIDED (owner, 2026-09-04)** — (b), (c) and (d) all answered:
+     - **(b) The public query surface promises KEYWORD SEARCH, FIELD-WEIGHTED**: multi-word
+       boolean matching over title / description / body, with a title match outranking a
+       body match. ⚠ This is a **contract**, not an implementation note — inter-brand
+       clients code against it, widening is easy and **narrowing is a breaking change for
+       clients this repo does not control.**
+     - **(c) The API PROMISES READ-YOUR-OWN-WRITES**: an issue is findable immediately
+       after it is filed. Free today, because the index commits in the same transaction as
+       the write. ⚠ It does **not** foreclose tantivy at phase 3, but it prices it: tantivy
+       would need synchronous commits, which are slower and fine at this volume — **budget
+       that when phase 3 is considered, rather than discovering it then.**
+     - **(d)** Retained and indexed: title, description, body as text; project, author,
+       assignee as structured id lookups. Recorded in the note.
+     - ⚠⚠ **Consequence worth naming: phase 2 is now REQUIRED, not optional.** Phases 0–1
+       (structured indexes, prefix/substring find) do not deliver keyword-field-weighted
+       search, so **search cannot be exposed at all until the hand-built inverted index
+       exists.** Phases 0–1 may still ship first — with no search endpoint published.
+       Tantivy remains the phase-3 option and stays backfillable because (d) retains text.
+   - ✅ **`axum` ACCEPTED AS RULED (owner, 2026-09-04)** — the gap above is closed by
+     decision rather than by study, on the stated grounds that a server framework is
+     replaceable behind our own handler layer in a way an on-disk format is not. ⚠ Recorded
+     as a *decision not to evaluate*, which is different from an evaluation, so a later
+     reader does not mistake it for one.
    - **History of the decision, kept because the reasoning is the useful part:** undecided
      from 2026-08-28; SurrealDB named front runner and scratched within 2026-09-03 on
      measured dependency weight; redb and fjall compared as full stacks 2026-09-03/04;
@@ -345,11 +375,73 @@ repository description at creation (2026-08-28).
      **FerroTrack as a server with an embedded store**, which is what requirement 1's
      PocketBase analogy said all along. ✅ **Consequence for the evaluation: the database
      question gets SMALLER, not larger.** See [`notes/store-criteria.md`](notes/store-criteria.md).
-   - ⚠ **Requirement 3 has a known tension with item 8's bar.** Waking an agent whose
-     process is not running means something must *spawn* it — per host, per vendor, with
-     that vendor's own launch command and credentials. A component that can start
-     arbitrary processes is close to the kind of broad grant item 8 exists to avoid.
-     Flagged, unresolved.
+   - ✅ **RESOLVED (owner, 2026-09-04): an OPTIONAL COMPANION SPAWNER.** Core FerroTrack
+     **never spawns a process.** A separate, opt-in component holds the per-vendor launch
+     commands and whatever grants spawning needs, so the default install stays inside item
+     8's bar and the capability is still reachable. ⚠ *(Resident's inference, 2026-09-04 —
+     the SPLIT is the owner's ruling; this is only a prediction about how it erodes.)*
+     Letting spawn logic drift back into the core on convenience grounds would undo it.
+     - **The loop this closes:** a message arrives for an agent that is not connected →
+       the companion notices and launches it → the agent registers itself on startup
+       (brief requirement 2) → FerroTrack delivers over the new channel. The companion is
+       therefore an ordinary FerroTrack *client* with spawn config, not a privileged
+       insider — worth preserving, because it keeps core's API the only way in.
+     - ⚠ **Two hazards to design against, named now rather than discovered:** the companion
+       needs **single-flight/debounce per agent** or ten queued messages become ten spawn
+       attempts; and it needs an identity and authorisation like any other client, since
+       "may ask FerroTrack who is down" and "may start processes" is a potent pair.
+   - ✅ **Runtime semantics DECIDED (owner, 2026-09-04), the three that the brief's
+     requirements 2–4 turn on:**
+     - **Liveness is CONNECTION-BASED.** An agent is live if and only if it holds an open
+       channel — so "live" means exactly "deliverable right now", which is the question the
+       router asks, and it imposes nothing on clients beyond staying connected. That last
+       point matters more here than elsewhere: heartbeating would be a client obligation
+       every *other vendor* has to implement, on a protocol whose whole purpose is that
+       they adopt it.
+       ⚠⚠ **The cost is a false-death case that the spawner turns into a real bug**: an
+       agent running but briefly disconnected reads as dead and gets launched again.
+       Single-flight is necessary but **not sufficient** — it stops ten messages causing
+       ten spawns, not one spawn duplicating a live process. *(Resident's inference, not
+       an owner ruling.)* Making registration idempotent per address would stop a duplicate
+       that does start from becoming a second agent under the same address — one way to
+       close this, not the only one, and not yet chosen.
+     - **Delivery is AT-LEAST-ONCE, with explicit ack and a TTL.** Retained until the
+       recipient acknowledges, expired after a configured age. **Agents must therefore be
+       idempotent**, and that is a contract obligation on every client, so it belongs in
+       the protocol documentation rather than in a design note. ⚠ redb has no expiry
+       mechanism, so **the TTL sweep is one of the hand-written background jobs** — cheap,
+       because item 9's scheduler is being built anyway, but it is now committed work.
+     - **Distribution is a SINGLE STATIC BINARY** that creates its redb file on first run —
+       ✅ the most literal answer to item 2's "embedded into the project or just a project
+       asset", and it sits well with the store: one binary, one file — **AND a LIBRARY
+       CRATE is published alongside it** (owner, same day), so Rust embedders, FerroStep
+       included, can link FerroTrack in-process. The two answers complete each other rather
+       than competing: standalone users run the binary, embedders link the crate.
+       ⚠⚠ **Because redb takes a file lock and permits one writer, these are EITHER/OR per
+       deployment, never both.** An embedder owns the file and **no FerroTrack binary can
+       run beside it.** That is an adopter-facing constraint, so it belongs in the product's
+       documentation and not only here — it is the kind of thing discovered at 2am
+       otherwise.
+       ⚠⚠ **The in-process path must enforce the SAME invariants as the network path.** If
+       the library lets an embedder write while network clients go through validation, the
+       referee has a bypass — and this workspace already has that exact lesson on record
+       from a store where rules constrained users but not superusers. *(Resident's
+       inference, not an owner ruling.)* Two surfaces over one set of invariants is the
+       shape that avoids it; the library is the surface that will be tempted.
+     - **Agent ADDRESSES are defined by FerroTrack: normalized, case-insensitive, and they
+       name an AGENT rather than a session** — so an address survives a restart. FerroTrack
+       owns validity, normalization and collision rules, so every vendor's client gets one
+       rule instead of each inventing its own.
+       ⚠ **Ruled for THIS repo on 2026-09-04**, which is what makes it binding here: a
+       ruling of the same shape existed elsewhere from 2026-09-02, and item 6 requires that
+       such a ruling enter on its own merits rather than by import. It now has.
+       ⚠ *(Resident's inference, not an owner ruling.)* Normalizing in exactly one place
+       — the normalized form as the key, the caller's original kept for display — avoids
+       the way case-insensitivity usually decays into case-sometimes-sensitive.
+       ✅ **Note this is deliberately separable from liveness**: the registry entry persists
+       across restarts because it names an agent, while liveness is the channel's state.
+       An address that exists but is not currently deliverable is the normal case, not an
+       inconsistency — and it is precisely the case the companion spawner acts on.
    - ⚠ **A prior owner ruling on agent ADDRESSING exists outside this repo** (2026-09-02)
      and bears directly on requirement 2. It has **deliberately not been imported**: item 6
      says a ruling from elsewhere enters this repo on its own merits, individually, or not

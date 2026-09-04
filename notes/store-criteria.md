@@ -371,9 +371,13 @@ fjall is a directory with ongoing compaction churn.
 
 ### What would change this recommendation
 
-- ⚠ **redb's maintainer concentration is UNVERIFIED and is the single thing to check before
-  committing.** If it is genuinely a bus-factor-of-one and that is disqualifying, it is a
-  real counterweight and fjall is the fallback.
+- ✅ **CHECKED 2026-09-04 — and the condition did not fire.** redb is cberner 1551 / next
+  human 32; fjall is marvin-j97 1933 / next human 32; `lsm-tree` is marvin-j97 2568 / next
+  human 20. **Both are single-maintainer projects in the same proportion**, so this is a
+  property of the category rather than a discriminator. ⚠ **The lesson worth keeping: a
+  risk flagged against one candidate has to be measured against the OTHER before it can
+  move a decision** — a one-sided check would have promoted fjall for a defect it shares.
+  Mitigation is latitude 3, already authorised.
 - A message bus with sustained high write volume would favour LSM — **not in view at the
   brief's scale**, but it is the condition that would flip it.
 - The acceptance-bar measurement, once run, outranks everything above. In particular the
