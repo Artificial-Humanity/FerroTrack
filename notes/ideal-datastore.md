@@ -108,3 +108,48 @@ cross-collection atomicity by construction, and LSM genuinely suits the write-he
 - ✅ **Nothing is being given up by waiting.** Item 1's two-implementation floor already
   requires the store to sit behind an interface, so a later `FerroStore` slots in at the
   same seam. **That rule is what keeps this option free.**
+
+## 6. The path is well-trodden — two precedents, and what they cost
+
+Owner's observation, 2026-09-05: *"this would hardly be the first product that started with
+a pre-existing dependency and switched to an in-house one down the road."* Correct, and the
+two clearest instances both carry lessons worth having before the fact rather than after.
+
+**CockroachDB → Pebble.** Built CockroachDB on RocksDB, began Pebble in **2018** as a
+replacement, shipped it as an **alternative** engine in v20.1 (May 2020), and made it the
+**default** in v20.2 (Nov 2020). ✅ **Mechanism: Pebble implements the same
+`storage/engine.Engine` interface RocksDB did**, explicitly so the two could "sit side by
+side… and allow a flag to control which is used." That is item 1's two-implementation floor,
+in production, doing exactly the job it is here for.
+
+⚠⚠ **Their stated reasons contain the warning.** One of the reasons they *had* to build
+Pebble was that **RocksDB-isms had leaked into the CockroachDB codebase** — most sharply,
+RocksDB's sstable format had become part of how nodes sent snapshots to each other — and
+removing them would have been "a large engineering effort, or impose unacceptable
+performance overhead." **The abstraction leaked, and the leak was both a reason to replace
+the engine and the thing that made replacing it hard.**
+
+⚠ Their second reason is the ongoing cost of the transition itself: supporting two engines
+"dramatically increases the testing surface area." Rung 3 is not a switch; it is a period of
+running both.
+
+**SurrealDB → SurrealKV.** Built on RocksDB, then wrote their own pure-Rust engine
+in-house — shipped in 2.0. ⚠ **And as of 3.x, RocksDB is still the production default while
+SurrealKV is still beta** (measured in [`surrealdb-research.md`](surrealdb-research.md)).
+An in-house replacement, years in, that has not yet reached parity. Both outcomes are
+normal; neither is fast.
+
+### ⚠ The consequence for us, offered as the resident's analysis, not as a rule
+
+Item 1 forbids bending the **ledger contract** toward the native store — that is the
+FerroStep seam. **Nothing currently says the same about the FerroTrack↔store seam, which is
+a different and internal boundary, and it is the one CockroachDB let leak.** The redb-isms
+available to leak here are concrete and easy to name: `TableDefinition` types in signatures
+above the storage layer, redb error types surfacing in the MCP protocol, multimap semantics
+assumed by the phase-2 postings design, and redb's savepoint model showing through anywhere
+history is exposed.
+
+⇒ **The cheapest possible insurance for rung 3 is a storage trait that redb is merely the
+first implementation of** — written now, while there is no code to retrofit, and while the
+only thing behind it is a walking skeleton. It costs almost nothing today and is the single
+factor that decides whether rung 3 later takes months or years.
