@@ -327,7 +327,9 @@ either way.
 ## The resident's recommendation, 2026-09-04 — asked for directly
 
 ✅ **ACCEPTED by the owner, 2026-09-04** — settled as `redb` + `axum` + `tokio`, with the
-fjall equivalent kept as the secondary consideration. The reasoning below is preserved as
+fjall equivalent kept as backup — and since 2026-09-05 the store is a ranked ladder of
+three, with our own derivative work third (see [`ideal-datastore.md`](ideal-datastore.md)).
+The reasoning below is preserved as
 the basis of that ruling; AGENTS.md item 2 is the ruling itself.
 ⚠⚠ **It rests on characterization — the acceptance bar is STILL UNMEASURED on both
 candidates**, and the "what would change this recommendation" section below did not stop
@@ -382,6 +384,96 @@ fjall is a directory with ongoing compaction churn.
   brief's scale**, but it is the condition that would flip it.
 - The acceptance-bar measurement, once run, outranks everything above. In particular the
   conditional-update-inside-the-transaction test at the call site, with a control.
+
+## Field survey, 2026-09-05 — done late, and it corrects the record
+
+⚠⚠ **This survey should have preceded the store ruling and did not.** The evaluation was
+**reactive**: SurrealDB because the owner named it, redb because it was already in the
+repo, fjall because it surfaced in a dependency measurement. No systematic search was ever
+run, so "the field is sparse" was an impression neither party had tested. The owner raised
+that on 2026-09-05 and it was the right challenge.
+
+Measured the same way (`cargo tree` over resolved graphs) plus crates.io release and
+download data:
+
+| crate | newest | last release | recent dl | crates | status |
+|---|---|---|---:|---:|---|
+| **redb** | 4.2.0 | 2026-08-17 | **4,656,539** | **1** | viable — and the most adopted by ~10× |
+| **fjall** | 3.1.10 | 2026-08-30 | 471,442 | 41 | viable |
+| **persy** | 1.8.1 | 2026-06-30 | 136,269 | 22 | ⚠ **viable and NEVER EVALUATED — a genuine miss** |
+| sanakirja | 2.0.0-beta.3 | 2026-07-06 | 32,892 | 21 | maintained, but parked on a beta line |
+| sled | 1.0.0-alpha.124 | **2024-10-11** | 2,760,043 | 16 | ⚠ stalled ~2 years on an alpha |
+| canopydb | 0.2.5 | 2025-11-22 | 847 | 51 | very early, negligible adoption |
+| marble | 16.0.2 | 2025-02-28 | 495 | 17 | low adoption |
+| structsy | 0.5.2 | **2023-04-29** | 360 | 27 | ⚠ effectively abandoned |
+
+**What the survey actually shows: the field is not sparse in COUNT — eight-plus pure-Rust
+embedded stores exist — it is sparse at the INTERSECTION of maintained, adopted, and
+meeting these criteria, where it is about three.** That is a more useful statement than
+"there aren't many", and it is the one the ruling should have rested on.
+
+⚠ **The miss: `persy`.** Pure Rust, transactional, 22 crates, released two months ago,
+136k recent downloads. It is a real candidate that was never put against the acceptance
+bar. **This does not change the ruling** — redb leads it on dependency weight (1 vs 22) and
+on adoption by an order of magnitude — but the comparison was less complete than it looked,
+and saying so is cheaper than having it found later.
+
+⚠⚠ **`sled` is the cautionary line in this table, and the lesson generalises: a large
+download count can be legacy inertia on an abandoned line.** 2.76M recent downloads against
+a last release of 2024-10-11 — on an *alpha*. Adoption measured without a release date is
+another green number that lies.
+
+✅ **What the survey adds in redb's favour**, which was not known when the ruling was made:
+**4.66M recent downloads against fjall's 471k — roughly 10×**. Stars (4770 vs 2304) had
+suggested a 2× gap; actual usage is far wider. For a single-maintainer dependency, the size
+of the community that would sustain a fork is a real part of the risk calculation.
+
+### persy, characterized 2026-09-05 — the missed candidate, and why the miss cost little
+
+Read from the crate source at 1.8.1 and the project's own documentation. ⚠ **Source
+reading, not measurement** — nothing below was probed against a running persy.
+
+**What it is.** A single-file transactional persistence engine in pure Rust — data,
+referencing structures and logs all in one file, like redb. Records are opaque `Vec<u8>`;
+**segments** organize records by kind and can be scanned individually (redb's tables,
+fjall's partitions). Two-phase `prepare` then `commit`, with a transaction log for crash
+recovery. Edition 2024, MSRV 1.85, 22 crates, released 2026-06-30, ~136k recent downloads,
+hosted on GitLab.
+
+✅ **Its genuine advantage over redb: NATIVE B-TREE SECONDARY INDEXES** — "associate any
+simple value to another value or a record reference." redb makes us build every index by
+hand, and (d)'s structured indexes plus phase-2 postings lists are real work. On the
+plumbing axis — the axis the owner set — this is the one candidate that would have moved
+the needle.
+
+**Two findings rule it out anyway, and either would be sufficient.**
+
+1. ⚠⚠ **Licence is MPL-2.0, not `MIT OR Apache-2.0`.** MPL is file-level weak copyleft:
+   *depending* on it is compatible with shipping FerroTrack under Apache-2.0, since the
+   obligation attaches to MPL-covered files rather than to ours. But it is a departure from
+   standing rule 2's house default and would need an explicit owner decision rather than a
+   silent adoption. ⚠⚠ **More decisively, it removes persy from latitude 3**: a derived
+   product's modified files stay MPL, so the permissive base the owner authorised is not
+   available here. redb, sled and fjall are all `MIT OR Apache-2.0`. **Since the standing
+   mitigation for single-maintainer risk IS fork-readiness, an MPL base weakens exactly the
+   hedge this evaluation identified.**
+2. ⚠ **Isolation is `read_committed`** — stated twice in `src/lib.rs` on `begin`. Locking is
+   acquired at *prepare*, not at read: `PrepareError::TransactionTimeout` is "Timeout
+   acquiring the data locks for the transaction", and ⚠ **there is no write-conflict error
+   variant at all** — the engine blocks rather than aborting. Consequence: a value read
+   early in a transaction is not guaranteed current at prepare, so **a read-then-update
+   compare-and-swap is not automatically safe** the way it is under redb's single
+   serialized writer, where the write transaction *is* the serialization.
+   ⚠⚠ **That is the acceptance bar's item 1 — the referee's whole guarantee** — and it is a
+   question redb does not raise. It would need probing before persy could be trusted here;
+   redb needs probing too, but to confirm rather than to resolve a doubt.
+
+✅ **Conclusion: the miss cost less than it looked. persy does not reopen the ruling.**
+
+⚠ **The lesson, which is the durable part:** licences were verified for every candidate
+that was *evaluated* and not for the one that was *skipped* — the omission and the
+unchecked licence were the same act. A survey-first evaluation would have caught both at
+once, for less effort than either cost separately.
 
 ## On building a new product from a permissive base (latitude 3)
 

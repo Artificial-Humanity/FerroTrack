@@ -1,8 +1,9 @@
 # redb as FerroTrack's backing store — research
 
 ✅ **Status: SELECTED (owner, 2026-09-04) — redb is FerroTrack's backing store**, in the
-stack `redb` + `axum` + `tokio`, with the fjall equivalent retained as the secondary
-consideration. [`AGENTS.md`](../AGENTS.md) item 2 is the one copy of that ruling, of what
+stack `redb` + `axum` + `tokio`. ⚠ Since 2026-09-05 the store is a **ranked ladder of
+three** — redb, then fjall, then our own derivative work; see
+[`ideal-datastore.md`](ideal-datastore.md). [`AGENTS.md`](../AGENTS.md) item 2 is the one copy of that ruling, of what
 the settlement rests on, and of what would reopen it; this note restates none of it and
 loses to it on any disagreement.
 

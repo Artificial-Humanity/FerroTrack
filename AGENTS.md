@@ -21,11 +21,21 @@ repository description at creation (2026-08-28).
    that stop being maintained. Consequence: FerroStep's two-implementation floor gets
    *stronger*, not retired — when the contract is awkward for whichever store FerroTrack
    lands on, the move is never "bend the trait toward the native store."
-2. ✅ **SETTLED (owner, 2026-09-04): the stack is `redb` + `axum` + `tokio`, with the
-   fjall equivalent (`fjall` + `axum` + `tokio`) retained as the SECONDARY consideration.**
-   This closes the backing-store question opened 2026-08-28. ⚠ **Secondary means ranked
-   second and still live — fjall is NOT eliminated**, and it is the named fallback if the
-   checks below go against redb.
+2. ✅ **SETTLED (owner, 2026-09-04): the stack is `redb` + `axum` + `tokio`.** This closes
+   the backing-store question opened 2026-08-28.
+   - ✅ **The store is a RANKED LADDER of three (owner, 2026-09-05), not a choice with a
+     fallback:** **1. redb — we proceed. 2. fjall — backup. 3. our own derivative work —
+     third.** ⚠⚠ **What changed on 2026-09-05: a derivative is now ON THE LADDER rather
+     than a hypothetical.** It was previously an authorised escape hatch (item 9, latitude
+     3) holding no position; it is now a direction the project may deliberately take, on
+     the owner's stated grounds that **deriving from a permissive base has become
+     materially more reachable in recent years.**
+     The reasons, the ideal-datastore requirements, and where redb and fjall each fall
+     short are recorded in [`notes/ideal-datastore.md`](notes/ideal-datastore.md).
+     ⚠ **This does not soften item 1.** Whichever rung is standing, the move is never to
+     bend the ledger contract toward the native store — and that rule is also what keeps
+     rung 3 cheap, since the two-implementation floor already requires the store to sit
+     behind an interface a later `FerroStore` can slot into.
    - ⚠⚠ **What the settlement RESTS ON, recorded so it can be revisited deliberately rather
      than silently:** characterization, **not measurement**. Two things were owed at the
      moment of the ruling and are still owed:
@@ -83,6 +93,25 @@ repository description at creation (2026-08-28).
        search, so **search cannot be exposed at all until the hand-built inverted index
        exists.** Phases 0–1 may still ship first — with no search endpoint published.
        Tantivy remains the phase-3 option and stays backfillable because (d) retains text.
+   - ✅ **PROTOCOL RULED (owner, 2026-09-05): MCP is FerroTrack's protocol.** This answers
+     the question item 9 left open — that item established the interface must be a network
+     protocol rather than a Rust API, and never said which. MCP is a cross-vendor standard
+     as of 2026 (donated to the Linux Foundation's Agentic AI Foundation, December 2025;
+     native across Claude, ChatGPT, Gemini, Copilot, VS Code and Cursor), so **one server
+     reaches every MCP-capable runtime with no bespoke client per vendor** — the inter-brand
+     requirement almost exactly, and it reduces work rather than adding it.
+     - ⚠ **OPEN, and it decides whether one protocol serves or two:** MCP is
+       agent-as-client calling tools, so register / file / search / move / send / ack are
+       natural — but **wake-up and delivery run the other way.** MCP defines server→client
+       notifications; whether they suit a general delivery channel must be **verified
+       against the current spec (2026-07-28), not assumed.**
+     - ✅ **If they do fit, liveness gains a precise definition for free**: connection-based
+       liveness means "holds an open channel", and "holds an open MCP session" is an
+       already-specified form of exactly that.
+     - ⚠ **MCP serves AGENTS.** A human UI and FerroStep's Rust adapter are not MCP
+       clients, so the likely shape is MCP for agents, the library crate for embedders, and
+       possibly REST for a UI — each another place the one set of invariants must hold. See
+       the bypass hazard recorded against the library crate above.
    - ✅ **`axum` ACCEPTED AS RULED (owner, 2026-09-04)** — the gap above is closed by
      decision rather than by study, on the stated grounds that a server framework is
      replaceable behind our own handler layer in a way an on-disk format is not. ⚠ Recorded
