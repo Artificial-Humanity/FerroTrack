@@ -275,17 +275,24 @@ repository description at creation (2026-08-28).
        on the local filesystem, take the latest, and apply it.
      - ✅ **Contacting FerroStep's resident is permitted, never required** — welcome if a
        question arises, and not a step in the procedure.
-     - ✅ **A notification from FerroStep's resident is a FRIENDLY CONCIERGE EVENT** (owner,
-       2026-09-07). The owner will sometimes ask that agent to tell the others about an
-       important FerroStep update. **It carries no obligation: this resident is not required
-       to respond by updating.** Pull it **when the timing is convenient against other
-       work** — the judgement is this resident's to make, which is the point of the framing.
-     - ⚠⚠ **The failure mode of a soft obligation is that it decays in silence, so leave a
-       trace either way.** "Not required" becomes "never happened" when nothing records the
-       decision. **A pull deferred on timing is fine; a pull forgotten is not**, and the two
-       are indistinguishable a week later unless the deferral was written down. This is the
-       same shape as every other thing in this file that quietly did not happen — the
-       `allow_unbound` flip, the stale install SHA.
+     - ✅✅ **A notification from FerroStep's resident MEANS THE UPDATE IS IMPORTANT — that
+       is why it was sent** (owner, 2026-09-07). **Make the upgrade at the next opportunity
+       that does not interfere with in-process work.** ⚠ Stated first that day as a
+       "friendly concierge event" carrying no obligation, then **hardened the same day by
+       the owner as too soft**; the earlier wording is named here so nobody revives it from
+       a stale copy.
+     - ⚠⚠ **What the hardening actually changed is the TEST, and that is the whole of it.**
+       The old test was *is this convenient* — elastic, and answerable "no" forever. The
+       new test is *does this interfere with work already in process* — a question with a
+       factual answer, **and when nothing is in process there is no deferral available.**
+       The notification carries information too: it is sent for importance, so it tells you
+       the update matters, not merely that one exists.
+     - ⚠⚠ **A bounded deferral still needs a trace, and now more than before.** "Next
+       opportunity" makes this a queue rather than a maybe, so **a deferral must name the
+       in-process work it waits behind, and it falls due when that work clears.** Otherwise
+       "not yet" and "never" are the same entry. This file already holds two of those: the
+       `allow_unbound` flip, open since 2026-08-29, and an install SHA that was wrong for
+       four days because nothing compared it to anything.
      - ⚠ **Distinguish DEFERRED-ON-TIMING from BLOCKED-ON-AN-INPUT.** They look alike in a
        status report and are not alike: one resumes by itself when work clears, the other
        never resumes until somebody supplies the missing thing. Say which.
