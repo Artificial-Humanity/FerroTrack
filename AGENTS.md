@@ -63,9 +63,10 @@ repository description at creation (2026-08-28).
      ACID single-writer is redb's default and cannot be opted out of, where fjall's
      transactions are opt-in with a **silent** non-transactional path — a weak guarantee in
      a codebase agents contribute to. fjall's clearest advantage, compaction filters,
-     deflated on inspection: it saves the sweep *job*, not the logic (liveness and
-     deliverability are read-time questions either way), and item 9's scheduling machinery
-     makes periodic sweeps nearly free. Plus 56 crates against 84, one file on disk, and
+     deflated on inspection: it saves the sweep *job*, not the logic. ⚠ **That comparison
+     was made while the message bus and registry were still FerroTrack's** — after the
+     2026-09-07 split the expiry workload largely leaves with FerroWire, which weakens
+     fjall's one clear advantage further rather than reviving it. Plus 56 crates against 84, one file on disk, and
      `MultimapTable` fitting both the structured indexes and phase-2 postings lists.
    - ⚠ **`axum` and `tokio` entered this record as a MEASUREMENT ASSUMPTION and were never
      independently evaluated.** They were the stand-in for "a server layer" when the
@@ -100,14 +101,10 @@ repository description at creation (2026-08-28).
      native across Claude, ChatGPT, Gemini, Copilot, VS Code and Cursor), so **one server
      reaches every MCP-capable runtime with no bespoke client per vendor** — the inter-brand
      requirement almost exactly, and it reduces work rather than adding it.
-     - ⚠ **OPEN, and it decides whether one protocol serves or two:** MCP is
-       agent-as-client calling tools, so register / file / search / move / send / ack are
-       natural — but **wake-up and delivery run the other way.** MCP defines server→client
-       notifications; whether they suit a general delivery channel must be **verified
-       against the current spec (2026-07-28), not assumed.**
-     - ✅ **If they do fit, liveness gains a precise definition for free**: connection-based
-       liveness means "holds an open channel", and "holds an open MCP session" is an
-       already-specified form of exactly that.
+     ✅ **The open question about MCP's push direction MOVED TO FerroWire 2026-09-07.**
+     It mattered because wake-up and delivery run against MCP's agent-as-client grain;
+     **FerroTrack's own surface — file, search, move, comment — is request/response and
+     fits MCP without that concern.**
      - ⚠ **MCP serves AGENTS.** A human UI and FerroStep's Rust adapter are not MCP
        clients, so the likely shape is MCP for agents, the library crate for embedders, and
        possibly REST for a UI — each another place the one set of invariants must hold. See
@@ -352,20 +349,23 @@ repository description at creation (2026-08-28).
    differ on, so the evaluation bar may want a line for it.
 
 9. **What FerroTrack is FOR — the product brief** (owner, 2026-09-03, stated to enable a
-   proper evaluation of the stack). Five things, in the owner's order:
+   proper evaluation of the stack). ⚠ **It named five things; two of the five moved to
+   FerroWire on 2026-09-07, so three remain here** — the original numbering is kept below
+   so the handoff document and this file describe the same brief.
    1. **Issue management** — PocketBase-like, but tailor-made for agents.
-   2. **Inter-agent communications routing, on a REGISTRY.** Agents starting up under
-      FerroStep management register themselves in the FerroTrack registry, and that one
-      registry serves **both** issue-tracking and comms routing. ⚠⚠ **Explicitly
-      INTER-BRAND** — Codex, Gemini, Grok, Muse and others "all play together". The
-      owner's note on the gap this fills: Claude Code has built-in messaging between
-      agents but **no registry**.
-   3. **A wake-up mechanism** — agents must be able to be *awakened* when a communication
-      arrives. An extension of item 2, not a separate feature.
-   4. **Task scheduling** — tasks handed to persistent agents at a scheduled time,
-      arriving as another wake-up message, but originated by the system or a human user
-      rather than by another agent.
-   5. ⚠ **Usable standalone.** FerroTrack is a dependency for FerroStep, but a user who
+   2. ⚠⚠ **MOVED OUT 2026-09-07 — the communication router and carrier are now a
+      SEPARATE PRODUCT, `FerroWire`, which the owner handles separately.** Requirements 2,
+      3 and 4 of the original brief — inter-agent communications routing on a registry,
+      the wake-up mechanism, and task scheduling — **are no longer FerroTrack's concerns.**
+      Everything FerroTrack decided about them is collected in
+      [`notes/ferrowire-handoff.md`](notes/ferrowire-handoff.md) for handoff, and is
+      deliberately not restated here.
+      ⚠ **The one question the split leaves open, and FerroTrack cannot answer it alone:
+      where the REGISTRY lives.** The original brief said one registry serves both
+      purposes. Identity (an address names an agent) is what FerroTrack needs for an
+      issue's author and assignee; presence (is this agent connected) is FerroWire's alone.
+      The handoff document sets out three answers and picks none.
+   3. ⚠ **Usable standalone.** FerroTrack is a dependency for FerroStep, but a user who
       wants only FerroTrack's features — without FerroStep's workflow management — must
       be able to run it on its own. **This is a product requirement, not an aspiration.**
    - **Evaluation latitude the owner granted the same day** — what the *store* is allowed
@@ -404,73 +404,25 @@ repository description at creation (2026-08-28).
      **FerroTrack as a server with an embedded store**, which is what requirement 1's
      PocketBase analogy said all along. ✅ **Consequence for the evaluation: the database
      question gets SMALLER, not larger.** See [`notes/store-criteria.md`](notes/store-criteria.md).
-   - ✅ **RESOLVED (owner, 2026-09-04): an OPTIONAL COMPANION SPAWNER.** Core FerroTrack
-     **never spawns a process.** A separate, opt-in component holds the per-vendor launch
-     commands and whatever grants spawning needs, so the default install stays inside item
-     8's bar and the capability is still reachable. ⚠ *(Resident's inference, 2026-09-04 —
-     the SPLIT is the owner's ruling; this is only a prediction about how it erodes.)*
-     Letting spawn logic drift back into the core on convenience grounds would undo it.
-     - **The loop this closes:** a message arrives for an agent that is not connected →
-       the companion notices and launches it → the agent registers itself on startup
-       (brief requirement 2) → FerroTrack delivers over the new channel. The companion is
-       therefore an ordinary FerroTrack *client* with spawn config, not a privileged
-       insider — worth preserving, because it keeps core's API the only way in.
-     - ⚠ **Two hazards to design against, named now rather than discovered:** the companion
-       needs **single-flight/debounce per agent** or ten queued messages become ten spawn
-       attempts; and it needs an identity and authorisation like any other client, since
-       "may ask FerroTrack who is down" and "may start processes" is a potent pair.
-   - ✅ **Runtime semantics DECIDED (owner, 2026-09-04), the three that the brief's
-     requirements 2–4 turn on:**
-     - **Liveness is CONNECTION-BASED.** An agent is live if and only if it holds an open
-       channel — so "live" means exactly "deliverable right now", which is the question the
-       router asks, and it imposes nothing on clients beyond staying connected. That last
-       point matters more here than elsewhere: heartbeating would be a client obligation
-       every *other vendor* has to implement, on a protocol whose whole purpose is that
-       they adopt it.
-       ⚠⚠ **The cost is a false-death case that the spawner turns into a real bug**: an
-       agent running but briefly disconnected reads as dead and gets launched again.
-       Single-flight is necessary but **not sufficient** — it stops ten messages causing
-       ten spawns, not one spawn duplicating a live process. *(Resident's inference, not
-       an owner ruling.)* Making registration idempotent per address would stop a duplicate
-       that does start from becoming a second agent under the same address — one way to
-       close this, not the only one, and not yet chosen.
-     - **Delivery is AT-LEAST-ONCE, with explicit ack and a TTL.** Retained until the
-       recipient acknowledges, expired after a configured age. **Agents must therefore be
-       idempotent**, and that is a contract obligation on every client, so it belongs in
-       the protocol documentation rather than in a design note. ⚠ redb has no expiry
-       mechanism, so **the TTL sweep is one of the hand-written background jobs** — cheap,
-       because item 9's scheduler is being built anyway, but it is now committed work.
-     - **Distribution is a SINGLE STATIC BINARY** that creates its redb file on first run —
-       ✅ the most literal answer to item 2's "embedded into the project or just a project
-       asset", and it sits well with the store: one binary, one file — **AND a LIBRARY
-       CRATE is published alongside it** (owner, same day), so Rust embedders, FerroStep
-       included, can link FerroTrack in-process. The two answers complete each other rather
-       than competing: standalone users run the binary, embedders link the crate.
-       ⚠⚠ **Because redb takes a file lock and permits one writer, these are EITHER/OR per
-       deployment, never both.** An embedder owns the file and **no FerroTrack binary can
-       run beside it.** That is an adopter-facing constraint, so it belongs in the product's
-       documentation and not only here — it is the kind of thing discovered at 2am
-       otherwise.
-       ⚠⚠ **The in-process path must enforce the SAME invariants as the network path.** If
-       the library lets an embedder write while network clients go through validation, the
-       referee has a bypass — and this workspace already has that exact lesson on record
-       from a store where rules constrained users but not superusers. *(Resident's
-       inference, not an owner ruling.)* Two surfaces over one set of invariants is the
-       shape that avoids it; the library is the surface that will be tempted.
-     - **Agent ADDRESSES are defined by FerroTrack: normalized, case-insensitive, and they
-       name an AGENT rather than a session** — so an address survives a restart. FerroTrack
-       owns validity, normalization and collision rules, so every vendor's client gets one
-       rule instead of each inventing its own.
-       ⚠ **Ruled for THIS repo on 2026-09-04**, which is what makes it binding here: a
-       ruling of the same shape existed elsewhere from 2026-09-02, and item 6 requires that
-       such a ruling enter on its own merits rather than by import. It now has.
-       ⚠ *(Resident's inference, not an owner ruling.)* Normalizing in exactly one place
-       — the normalized form as the key, the caller's original kept for display — avoids
-       the way case-insensitivity usually decays into case-sometimes-sensitive.
-       ✅ **Note this is deliberately separable from liveness**: the registry entry persists
-       across restarts because it names an agent, while liveness is the channel's state.
-       An address that exists but is not currently deliverable is the normal case, not an
-       inconsistency — and it is precisely the case the companion spawner acts on.
+   - ⚠⚠ **MOVED TO FerroWire 2026-09-07.** The runtime semantics decided on 2026-09-04 —
+     connection-based liveness, at-least-once delivery with acknowledgement and a TTL, and
+     the format of an agent address — **belong to the communication product and are no
+     longer FerroTrack's.** They are recorded with their reasoning in
+     [`notes/ferrowire-handoff.md`](notes/ferrowire-handoff.md).
+     ✅ **What survives here is the distribution decision, which was made in the same
+     breath and is not a communication concern:** FerroTrack ships as a **single static
+     binary** that creates its redb file on first run, **and a library crate** is published
+     alongside it for Rust embedders including FerroStep.
+     ⚠⚠ **Because redb takes a file lock and permits one writer, those two are EITHER/OR
+     per deployment, never both against one file.** An embedder owns the file and no
+     FerroTrack binary can run beside it — an adopter-facing constraint, so it belongs in
+     the product documentation and not only here.
+     ⚠⚠ **The in-process path must enforce the SAME invariants as the network path.** If
+     the library lets an embedder write while other clients go through validation, the
+     referee has a bypass — this workspace already has that lesson from a store where rules
+     constrained users but not superusers. *(Resident's inference, not an owner ruling.)*
+     Two surfaces over one set of invariants is the shape that avoids it; the library is
+     the surface that will be tempted.
    - ⚠ **A prior owner ruling on agent ADDRESSING exists outside this repo** (2026-09-02)
      and bears directly on requirement 2. It has **deliberately not been imported**: item 6
      says a ruling from elsewhere enters this repo on its own merits, individually, or not
@@ -489,10 +441,14 @@ repository description at creation (2026-08-28).
 2. **Licence: Apache-2.0** — the house default for every new repo (owner, 2026-08-01).
    `LICENSE` carries the full text; declare it in any future `Cargo.toml` /
    `pyproject.toml` / `package.json`, and state it in the README.
-3. **`north-star.md` is a gap to fill, not an exemption** (workspace convention, owner,
-   2026-08-19/20: every product repo carries one, under exactly that filename). Its
-   Vision section is the owner's to write or ratify. It is deliberately absent rather
-   than agent-drafted from a one-line description.
+3. ✅ **`north-star.md` EXISTS as of 2026-09-04** (workspace convention, owner,
+   2026-08-19/20: every product repo carries one, under exactly that filename). ⚠ **Its §1
+   Vision is drafted from the owner's own answers and is UNRATIFIED — awaiting the owner's
+   rewrite or ratification.** Every other section is assembled from this repo's record.
+   ⚠ An earlier revision of this rule said the file was "deliberately absent rather than
+   agent-drafted from a one-line description"; that was true until the owner supplied the
+   substance in conversation on 2026-09-04, and the retired wording is kept here with its
+   reason so the next reader can see it was withdrawn rather than lost.
 4. **No review lane is adopted here.** The `FerroStep/personas/` files are the IDENTITY
    portion only — who commits as whom, per `FerroStep/config.yaml` (decided item 7) — the same
    shape FerroStep adopted; the review lane itself is piloted in Sonora only (workspace

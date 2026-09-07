@@ -56,15 +56,15 @@ Derived from the four workloads and the brief. Marked with what the two candidat
 | want | why this product needs it | redb | fjall |
 |---|---|---|---|
 | **CAS evaluated inside the transaction** | the referee's entire guarantee | structural (single serialized writer) | via opt-in tx only |
-| Embedded, single-writer, **one file** | broadcast completeness; "just a project asset" | ✅ one file | directory + compaction churn |
+| Embedded, single-writer, **one file** | "just a project asset"; one thing to back up | ✅ one file | directory + compaction churn |
 | **Native secondary indexes** | project / author / assignee / state / labels | ✗ hand-built | ✗ hand-built |
 | **Postings / inverted-index structure** | phase-2 keyword search | multimap tables (close) | composite keys (workable) |
-| **Vector similarity** | duplicate detection — the highest-value agent search | ✗ | ✗ |
+| **Vector similarity** | duplicate detection — the highest-value agent search, and now the clearest gap | ✗ | ✗ |
 | **Queryable history** | acceptance-bar item 3; "what did this look like at step N" | ✗ (savepoints are internal) | ✗ (versioning is internal) |
-| **TTL / expiry primitive** | message retention, dead registry entries | ✗ hand-written sweeps | ✅ compaction filters |
-| Ordered range scans | scheduler due-time; per-recipient drain | ✅ | ✅ |
-| Atomic writes across collections | record + event; message + receipt | ✅ same tx | ✅ cross-partition journal |
-| Native durable change feed | notification completeness without relying on being sole writer | ✗ | ✗ |
+| **TTL / expiry primitive** | ⚠ *weakened by the 2026-09-07 split — message and registry expiry left with FerroWire* | ✗ | ✅ compaction filters |
+| Ordered range scans | issue-event history in order; prefix scans over search terms | ✅ | ✅ |
+| Atomic writes across collections | issue record + its event | ✅ same tx | ✅ cross-partition journal |
+| Native durable change feed | ⚠ *most of its motivation left with FerroWire; it survives only for a future multi-process design* | ✗ | ✗ |
 | Small footprint, no C toolchain | item 2 requirement 4 | ✅ 1 crate | 41 crates |
 | Format stability + migration path | a tracker outlives its engine version | ✅ shipped precedent | ✅ stated policy |
 | Compression | text-heavy bodies and messages | ✗ | ✅ LZ4 default |
@@ -76,8 +76,8 @@ generative AI" becomes a concrete gap rather than an observation.
 ## 4. Where each falls short
 
 **redb** — no secondary indexes, no TTL, no vector index, no queryable history, no change
-feed, no compression; B+trees favour reads while the message bus is write-heavy; single
-maintainer. ⚠ And its CAS is a **structural property you must use correctly**, not a named
+feed, no compression; single maintainer. ⚠ *(The write-heavy argument against B+trees left
+with FerroWire on 2026-09-07 — the message bus is no longer this product's workload.)* ⚠ And its CAS is a **structural property you must use correctly**, not a named
 primitive that enforces itself — safe, but it puts the burden at the call site, which is
 precisely why the acceptance-bar probe needs a control.
 

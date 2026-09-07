@@ -20,18 +20,23 @@ of the work here:
 - ✅ **Therefore the database question got SMALLER.** Everything the brief describes —
   registry semantics, routing, wake-up, scheduling — lives in the server, above the store.
 
-## The four workloads, which are not alike
+## The workloads — ⚠ TWO since the FerroWire split, not four
+
+⚠⚠ **Revised 2026-09-07.** This section listed four workloads: issues, registry, messages
+and schedule. **The last three left with FerroWire.** What remains:
 
 | workload | shape | hot access pattern | lifetime |
 |---|---|---|---|
-| **Issues** | read-dominated | lookup by id; filter by state/assignee/label/scope | long-lived |
-| **Registry** | small, hot, read-heavy | lookup by agent address; enumerate live agents | ⚠ **entries expire** — agents register at startup and die without deregistering |
-| **Messages** | **write-dominated**, append-shaped | per-recipient ordered drain; "anything for X?" | ⚠ **short** — delivered messages should not accumulate forever |
-| **Schedule** | small | ⚠ **range scan by due-time**: "everything due before now" | until fired |
+| **Issues** | read-dominated | lookup by id; filter by state / assignee / label / scope | long-lived |
+| **Issue events** | append-only | read the history of one record in order | as long as the record |
 
-⚠ **The registry's hard problem is liveness, not storage.** An agent that crashes does not
-deregister. Whatever the store, the server needs heartbeat-or-lease semantics and a sweep;
-"is this agent reachable" is never answered by the presence of a row.
+✅ **The store's job got easier, and two arguments weakened with it.** The write-heavy
+message bus was the main case for fjall's LSM shape, and message and registry expiry was
+the main use for its compaction filters. **Both left.** Neither redb nor the ruling depended
+on them, so the split confirms the ladder rather than disturbing it.
+
+⚠ **What the split does NOT remove:** the ordered-range-scan requirement survives, because
+issue-event history is read in order, and the search index needs prefix scans over terms.
 
 ## What the store MUST provide
 

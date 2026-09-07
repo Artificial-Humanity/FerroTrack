@@ -17,9 +17,18 @@
 > an agent once wrote "a deliberate owner ruling" about a decision nobody could later
 > verify, and it read as settled fact for two days.
 
+> ⚠⚠ **SPLIT, 2026-09-07: the communication router and carrier left FerroTrack and became
+> `FerroWire`, a separate product the owner handles separately.** §1 below was drafted on
+> 2026-09-04, before that split, and **large parts of it now describe FerroWire rather than
+> FerroTrack** — the registry, the router, and the local-plus-frontier-vendor gap in
+> particular. ⚠ **It has deliberately NOT been rewritten**, because §1 is the owner's and
+> the rule above says an agent may draft and mark, never decide. The rewrite is now owed
+> twice over: once for ratification, once for the split.
+> Everything that moved is in [`notes/ferrowire-handoff.md`](notes/ferrowire-handoff.md).
+
 ---
 
-## 1. The Vision — *drafted from the owner's words, UNRATIFIED*
+## 1. The Vision — *drafted 2026-09-04, UNRATIFIED, and PRE-SPLIT*
 
 **The registry and the communication router are the heart of it.** Not the issue tracker —
 the issue tracker is what the registry makes possible first.
@@ -54,9 +63,9 @@ intent."* If this document is ever used to narrow the audience, it is being misr
 
 ## 2. What is ours, and what is rented
 
-**Ours** — the referee semantics over the ledger, the agent registry, the communication
-router, wake-up, task scheduling, the address format, the query surface, and the inverted
-index behind it. Nearly everything the product *is*, because of §3.
+**Ours** — the referee semantics over the ledger, issue management, the query surface, and
+the inverted index behind it. ⚠ The registry, the router, wake-up, task scheduling and the
+address format **left for FerroWire on 2026-09-07** and are no longer in this column.
 
 **Rented** — `redb` (store), `axum` + `tokio` (server layer), and at phase 2 a stemmer.
 Settled in `AGENTS.md` item 2.
@@ -114,11 +123,16 @@ control, so a conflict-free pass cannot be mistaken for a vacuous one.
 ⚠ That measurement outranks the reasoning that produced the store ruling. Until it is run,
 every downstream decision inherits an unverified premise. It is the next piece of work.
 
+✅ **The 2026-09-07 split makes this easier, not harder**: with routing, delivery and
+scheduling gone, the walking skeleton that closes this shrinks to one agent filing an issue
+and moving it through the referee against a real redb file.
+
 ---
 
 ## One-Breath Summary
 
-A single Rust binary — or an embedded crate — that keeps a registry of agents, local and
-frontier-vendor alike, routes messages between them, wakes them when work arrives, and
-tracks the issues they work on. Built for us, polished as though for the world, and given
-away.
+A single Rust binary — or an embedded crate — that tracks the issues agents work on, with a
+referee that decides which changes are legal and a search built for the way agents ask.
+Built for us, polished as though for the world, and given away.
+⚠ *Rewritten 2026-09-07 after the FerroWire split; the pre-split version named the registry
+and the router first, which is now the sibling product's summary and not this one's.*
