@@ -257,31 +257,47 @@ repository description at creation (2026-08-28).
      UNCHECKED and exits non-zero — that is correct behaviour, not a fault.**
      Regenerating an installed surface is the owner's action, coordinated by FerroStep's
      resident.
-   - ✅ **Standing authorization (owner, 2026-09-07): FerroStep's resident is adding a
-     BUDGET line item to the reviewer call configuration, and that work is ALREADY
-     AUTHORIZED.** If that agent contacts this repo's resident about it, the authorization
-     does not need to be re-confirmed with the owner.
-     - ⚠ **What the authorization covers is the WORK, not the identity of whoever claims
-       it.** This workspace has two standing findings that bear on that: session names
-       collide, so a bare name can mis-deliver, and a peer's self-report is evidence rather
-       than fact. **Corroborate a claim about FerroStep's state against FerroStep's git
-       history, not against the message.** That is not distrust of a colleague; it is the
-       same rule this repo applies to its own record.
-     - ⚠ **Scope not yet stated, and worth asking before acting on it:** whether the
-       authorization extends to changes in **this repo's** files — FerroTrack's roster
-       gains a budget key only if someone edits `FerroStep/config.yaml`, which is this
-       resident's file, not FerroStep's. Until the owner says otherwise, treat a request
-       to change FerroTrack's own config as a request to be discussed here rather than an
-       instruction already approved.
-     - ✅ **Why the change is welcome, briefly:** the cost question has been live in this
-       roster all week and lives only in a comment (`token usage at high measured too
-       costly`, 2026-09-03). A budget field turns that from prose into a value a launcher
-       can read.
+   - ✅✅ **DEPLOYMENT IS A PULL, NOT A PUSH (owner, 2026-09-07, reversing an order given
+     the same day).** FerroStep's resident makes changes **in FerroStep only** and never
+     deploys into other repos. **This repo's resident goes to FerroStep, takes the latest
+     deployment, and applies it here.** FerroStep's resident simply says when it is ready.
+     - ✅ **Why this is stronger than the push model it replaced, and worth keeping:** a
+       notification is not an instruction, so **it needs no authorization check at all.**
+       The worst a mistaken or mis-delivered "it is ready" can do is send this resident to
+       look at a repository and find nothing new. Under a push model the same bad message
+       gets a change made. It also settles the boundary question raised earlier: each
+       resident is responsible for their own tree, which is the do-not-cross-edit rule
+       arrived at from the other direction.
+     - ⚠ **Corroborate against FerroStep's git history, never against the message.** The
+       notification says *when* to look. What is true is whatever the sibling tree says.
+     - **The pull procedure**, in order, because two of these steps have already gone wrong
+       once each:
+       1. Read FerroStep's log and identify the commit to take.
+       2. **Reinstall the `ferrostep` binary FIRST, before regenerating anything.** ⚠ The
+          emission lives in the generator, so an old emitter reads a config carrying a new
+          key and **silently drops it** — the same silent-absence shape the actors block
+          and the `workflow` key both had.
+       3. Apply any roster or persona changes to this repo's `FerroStep/` folder.
+       4. **Verify BEHAVIOURALLY, not by version string.** Exercise the new capability
+          against the real file and confirm the new behaviour appears.
+       5. ⚠⚠ **Update the recorded SHA below as part of the install, not afterwards.**
+     - ⚠⚠ **Step 5 exists because the record went stale exactly once already, and silently.**
+       The SHA below said `c475ed5` from 2026-08-29 until 2026-09-07, while the installed
+       binary had been rebuilt on 2026-09-03. Nothing detected it, because nothing compares
+       prose to a binary. **A procedure whose last step is a courtesy is a procedure whose
+       last step does not happen.**
+     - ✅ **The behavioural check is the reliable one — prefer the artifact that changes
+       when the fact changes.** The 2026-09-03 drift was caught this way, not by a version
+       string: `agent-env` resolved a `FerroStep/config.yaml` deployment folder, and that
+       discovery path does not exist in `c475ed5`, so the installed binary was provably
+       newer than the record claimed.
    - **Identity (owner, 2026-08-28; email domain corrected to the house `.io` the same
      day): the resident holds the `developer` entry and a second agent holds `reviewer`.**
      Both identities are SET in [`config.yaml`](FerroStep/config.yaml), the one copy — prose points
      there and deliberately restates no value. The `ferrostep` binary is installed from the sibling
-     checkout at `c475ed5` (clean tree; reinstalled 2026-08-29 when the create guard
+     checkout at **`7eec614`, built 2026-09-03** (corrected 2026-09-07: this line read
+     `c475ed5` for four days while the installed binary was newer — see the pull
+     procedure's step 5). Reinstalled 2026-08-29 when the create guard
      landed — the emission lives in the generator, so an old emitter reads a config
      carrying the new `workflow` key and silently drops it: reinstall BEFORE
      regenerate, verify `not_initial_state` in the emitted file, then install.
