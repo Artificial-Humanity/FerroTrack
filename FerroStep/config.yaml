@@ -27,11 +27,11 @@ agents:
     # the reasons do not all point the same way:
     #   2026-09-02  Fable 5.1 at high      (owner)
     #   2026-09-03  lowered to medium      (owner: token usage at high measured too costly)
-    #   2026-09-07  Opus 5 at xhigh        (owner)
-    # ⚠ The 2026-09-07 change RAISES effort past the level that was withdrawn on cost
-    # grounds four days earlier, and onto a costlier model. That is the owner's call and
-    # is recorded, not queried — but the earlier cost finding is kept above rather than
-    # overwritten, so nobody re-derives it as a surprise.
+    #   2026-09-07  Opus 5 at xhigh        (owner) — reverted the same day
+    #   2026-09-07  back to Fable 5.1 at medium (owner)
+    # The 2026-09-07 excursion is kept because the git history shows it: the setting was
+    # raised past the level withdrawn on cost grounds on 2026-09-03, then returned within
+    # the day. The cost finding above stands unchanged.
     # These are the same keys Sonora's roster carries, so a launcher pointed at this repo
     # finds them in the one place. ⚠ DECLARATION, NOT YET AN INSTANCE: nothing in this
     # repo reads them today. `ferrostep agent-env` tolerates unknown keys and ignores
@@ -40,5 +40,5 @@ agents:
     # `agent-env` itself once it emits AGENT_MODEL / AGENT_EFFORT) runs against this file
     # — check that before reading them as configured behaviour. The developer entry
     # deliberately has none: that agent's model is set at runtime by the owner.
-    model: claude-opus-5
-    effort: xhigh       # the claude CLI's ladder: low | medium | high | xhigh | max
+    model: claude-fable-5-1
+    effort: medium      # the claude CLI's ladder: low | medium | high | xhigh | max
