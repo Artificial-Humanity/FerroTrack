@@ -42,3 +42,10 @@ agents:
     # deliberately has none: that agent's model is set at runtime by the owner.
     model: claude-fable-5-1
     effort: medium      # the claude CLI's ladder: low | medium | high | xhigh | max
+    # What a launcher may spend on ONE run of this agent, in US dollars (owner,
+    # 2026-09-07). ⚠ A quantity, never a switch: this says how many dollars, and which
+    # flag carries them is the launcher's business. ⚠ Absent means NO ceiling, so this is
+    # opted into deliberately — the roster invents no default. A zero, a negative or a
+    # NaN is REFUSED rather than read as absent, because folding those into "no ceiling"
+    # would answer a request to spend less by removing the limit.
+    budget_usd: 2.0

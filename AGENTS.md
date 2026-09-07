@@ -303,6 +303,9 @@ repository description at creation (2026-08-28).
        ⚠ **Some faults do not announce themselves**: work that silently does not happen
        leaves the same trace as work that happened and changed nothing. `ferrostep doctor`
        is the detector for that on the referee surface.
+       ⚠ **State the installed commit when reporting.** FerroStep's resident cannot know it,
+       and the second half of the trigger fires when no update *looked* relevant — so a
+       report does not imply the reporter is current, and theirs says as much.
      - ⚠ **Corroborate against FerroStep's git history, never against the message.** The
        notification says *when* to look. What is true is whatever the sibling tree says.
      - ⚠⚠ **One step reaches outside this repo: the `ferrostep` binary is INSTALLED
@@ -337,10 +340,10 @@ repository description at creation (2026-08-28).
      day): the resident holds the `developer` entry and a second agent holds `reviewer`.**
      Both identities are SET in [`config.yaml`](FerroStep/config.yaml), the one copy — prose points
      there and deliberately restates no value. The `ferrostep` binary is installed from the sibling
-     checkout at **`7eec614`, built 2026-09-03** (corrected 2026-09-07: this line read
-     `c475ed5` for four days while the installed binary was newer — see the pull
-     procedure's step 5). Reinstalled 2026-08-29 when the create guard
-     landed — the emission lives in the generator, so an old emitter reads a config
+     checkout at **`622d71e`, built 2026-09-07** — the pull that took the roster's
+     `budget_usd` field. (This line read `c475ed5` for four days while the installed binary
+     was `7eec614`; corrected 2026-09-07, and step 5 of the pull procedure exists so it does
+     not recur.) Reinstalled 2026-08-29 when the create guard landed — the emission lives in the generator, so an old emitter reads a config
      carrying the new `workflow` key and silently drops it: reinstall BEFORE
      regenerate, verify `not_initial_state` in the emitted file, then install.
      Previously `ff95ff4`, and `881e20aa` before that, each for the same reason),
