@@ -296,6 +296,34 @@ repository description at creation (2026-08-28).
      - ⚠ **Distinguish DEFERRED-ON-TIMING from BLOCKED-ON-AN-INPUT.** They look alike in a
        status report and are not alike: one resumes by itself when work clears, the other
        never resumes until somebody supplies the missing thing. Say which.
+     - ✅✅ **FAULT PROCEDURE (owner, 2026-09-07). On meeting an issue with FerroStep:
+       1. Check FerroStep for updates that might address it, and update. 2. Tell FerroStep's
+       resident if the update does not resolve it, or if no update exists that likely
+       would.**
+       ⚠⚠ **The owner's two illustrations are EXAMPLES, explicitly not exhaustive** — *"not
+       limited to these things"* — and the word **examples** is written adjacent to them on
+       purpose, because this repo has already paid three corrections for a list that was
+       read as an enumeration. They were: a logic problem causing unlimited review loops,
+       and a reviewer trigger that never fires so code goes unreviewed. **Any FerroStep
+       misbehaviour qualifies.**
+       ⚠ **Translate them before applying them here: FerroTrack adopts no review lane**
+       (standing rule 4), so the review-shaped faults have no instance in this repo. The
+       equivalent surface is the **referee** over the research ledger — records refused that
+       should pass, records admitted that should not, counters that do not spend, a state
+       move allowed or blocked wrongly.
+       ⚠⚠ **The two illustrations are not the same KIND of fault, and the second kind is
+       the reason this procedure needs a detection step before its first step.** An
+       unlimited loop announces itself. **A trigger that never fires announces nothing** —
+       nothing errors, nothing goes red, and the work simply is not done. This workspace's
+       standing lesson applies directly: **check that the instrument RAN before trusting a
+       negative**, because a no-op and a no-run leave the same trace. `ferrostep doctor` is
+       the detector that exists for exactly this on the referee surface.
+       ⚠ Step 1 reaches outside this repo — see the workspace-wide binary note above. A
+       fault met here can trigger an upgrade every other deployment then runs.
+       ✅ **Note the direction: deployments are PULLED from FerroStep, faults are PUSHED to
+       its resident.** Two directions, one relationship — and step 2 is the specific case of
+       the persona's standing rule that a finding which would land as a change in FerroStep
+       goes to its resident, never into its tree.
      - ⚠ **Corroborate against FerroStep's git history, never against the message.** The
        notification says *when* to look. What is true is whatever the sibling tree says.
      - ⚠⚠ **One step reaches outside this repo: the `ferrostep` binary is INSTALLED
