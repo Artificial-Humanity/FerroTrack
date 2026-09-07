@@ -268,8 +268,22 @@ repository description at creation (2026-08-28).
        gets a change made. It also settles the boundary question raised earlier: each
        resident is responsible for their own tree, which is the do-not-cross-edit rule
        arrived at from the other direction.
+     - ✅ **The TRIGGER is the owner asking for an update — not the notification** (owner
+       clarified 2026-09-07). FerroStep's resident saying "it is ready" is a **convenience,
+       so that this resident does not go looking when there is nothing to find. It is not a
+       precursor and waiting for it is wrong.** Asked to update, go to the sibling checkout
+       on the local filesystem, take the latest, and apply it.
+     - ✅ **Contacting FerroStep's resident is permitted, never required** — welcome if a
+       question arises, and not a step in the procedure.
      - ⚠ **Corroborate against FerroStep's git history, never against the message.** The
        notification says *when* to look. What is true is whatever the sibling tree says.
+     - ⚠⚠ **One step reaches outside this repo: the `ferrostep` binary is INSTALLED
+       WORKSPACE-WIDE** at `~/.cargo/bin/ferrostep`, and other deployments use the same
+       one. Reinstalling it does not touch their files, but it does change the tool their
+       residents run — and this workspace's standing lesson is that **"the tool does X" is
+       a claim about the INSTALLED tool.** Upgrading is the normal direction and generally
+       what an older installed surface wants; **the point is that it is not a FerroTrack-local
+       act, so do not describe it as one.**
      - **The pull procedure**, in order, because two of these steps have already gone wrong
        once each:
        1. Read FerroStep's log and identify the commit to take.
