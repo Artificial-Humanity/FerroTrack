@@ -275,6 +275,20 @@ repository description at creation (2026-08-28).
        on the local filesystem, take the latest, and apply it.
      - ✅ **Contacting FerroStep's resident is permitted, never required** — welcome if a
        question arises, and not a step in the procedure.
+     - ✅ **A notification from FerroStep's resident is a FRIENDLY CONCIERGE EVENT** (owner,
+       2026-09-07). The owner will sometimes ask that agent to tell the others about an
+       important FerroStep update. **It carries no obligation: this resident is not required
+       to respond by updating.** Pull it **when the timing is convenient against other
+       work** — the judgement is this resident's to make, which is the point of the framing.
+     - ⚠⚠ **The failure mode of a soft obligation is that it decays in silence, so leave a
+       trace either way.** "Not required" becomes "never happened" when nothing records the
+       decision. **A pull deferred on timing is fine; a pull forgotten is not**, and the two
+       are indistinguishable a week later unless the deferral was written down. This is the
+       same shape as every other thing in this file that quietly did not happen — the
+       `allow_unbound` flip, the stale install SHA.
+     - ⚠ **Distinguish DEFERRED-ON-TIMING from BLOCKED-ON-AN-INPUT.** They look alike in a
+       status report and are not alike: one resumes by itself when work clears, the other
+       never resumes until somebody supplies the missing thing. Say which.
      - ⚠ **Corroborate against FerroStep's git history, never against the message.** The
        notification says *when* to look. What is true is whatever the sibling tree says.
      - ⚠⚠ **One step reaches outside this repo: the `ferrostep` binary is INSTALLED
