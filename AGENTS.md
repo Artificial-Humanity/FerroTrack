@@ -94,6 +94,27 @@ repository description at creation (2026-08-28).
        search, so **search cannot be exposed at all until the hand-built inverted index
        exists.** Phases 0–1 may still ship first — with no search endpoint published.
        Tantivy remains the phase-3 option and stays backfillable because (d) retains text.
+   - ✅✅ **LINE-WIDE INTENT (owner, 2026-09-07): MCP is the standard throughout the entire
+     Ferro line of projects, on the grounds that these are agents-first systems and MCP is
+     the agent-native protocol.** ⚠ Stated as a direction, with the details to be settled
+     later — *"we will continue to settle on MCP… later"* — so read it as the default a
+     Ferro project must argue its way out of, not as a finished specification.
+     - ⚠⚠ **It binds THIS repo, because the owner stated it here. It does NOT bind the
+       siblings by being written here.** FerroStep and FerroWire each have their own record
+       and, in FerroStep's case, its own resident. Item 6 requires a ruling from elsewhere
+       to enter a repo on its own merits, individually — and this workspace established on
+       2026-09-04 that sibling carry-over happens *past* exactly such a guard. **Ask the
+       owner to state it in each repo rather than citing this line at them.**
+     - ⚠ **FerroStep is the one where "throughout" needs real thought, and that thought is
+       the owner's conversation with its resident, not this repo's.** FerroStep is a Rust
+       core with a CLI over a ledger; it has no network surface today, so adopting MCP
+       there is a change in what it *is*, not only in how it is reached.
+     - ⚠ **A line-wide standard raises a composition question worth settling early:** three
+       Ferro products each running an MCP server means an agent connects to three, unless
+       one server fronts the others. That is cheap to decide now and awkward later.
+     - ⚠ **Do not read the standard as "MCP for everything."** MCP suits request/response
+       tool surfaces well; the push direction was already found awkward, and that problem
+       moved to FerroWire rather than being solved by a line-wide rule.
    - ✅ **PROTOCOL RULED (owner, 2026-09-05): MCP is FerroTrack's protocol.** This answers
      the question item 9 left open — that item established the interface must be a network
      protocol rather than a Rust API, and never said which. MCP is a cross-vendor standard

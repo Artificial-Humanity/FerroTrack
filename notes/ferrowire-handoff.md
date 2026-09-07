@@ -48,6 +48,12 @@ change is a change and the record must show it.
 | **Wake-up** | An **optional companion spawner**. The core never starts a process. | 2026-09-04 |
 | **Protocol** | MCP. | 2026-09-05 |
 
+⚠⚠ **Line-wide intent (owner, 2026-09-07): MCP is the standard throughout the whole Ferro
+line, because these are agents-first systems.** The owner will settle the details later.
+Treat it as the default that FerroWire must argue its way out of, not as a finished
+specification. ⚠ **The push-direction problem in section 3 does not go away because of this
+intent. A line-wide rule does not answer it.**
+
 ### Why each ruling went that way
 
 **Liveness is connection-based** because it imposes nothing on clients except that they stay
