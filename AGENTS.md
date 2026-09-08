@@ -340,8 +340,9 @@ repository description at creation (2026-08-28).
      day): the resident holds the `developer` entry and a second agent holds `reviewer`.**
      Both identities are SET in [`config.yaml`](FerroStep/config.yaml), the one copy — prose points
      there and deliberately restates no value. The `ferrostep` binary is installed from the sibling
-     checkout at **`622d71e`, built 2026-09-07** — the pull that took the roster's
-     `budget_usd` field. (This line read `c475ed5` for four days while the installed binary
+     checkout at **`a087c9c`, built 2026-09-08** — the pull that took the fix for a defect this
+     repo's resident reported (FerroStep #354: `agent-env --format json` omitted keys the
+     shell form emitted). Previously `622d71e`, which took the roster's `budget_usd` field. (This line read `c475ed5` for four days while the installed binary
      was `7eec614`; corrected 2026-09-07, and step 5 of the pull procedure exists so it does
      not recur.) Reinstalled 2026-08-29 when the create guard landed — the emission lives in the generator, so an old emitter reads a config
      carrying the new `workflow` key and silently drops it: reinstall BEFORE
