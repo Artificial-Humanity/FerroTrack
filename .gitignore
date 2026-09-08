@@ -5,3 +5,7 @@
 
 # Rust build output (the crate is coming; the ignore predates it on purpose).
 target/
+
+# Working notes live in the umbrella Notes/ repo and are deliberately private.
+# This is a symlink to ../Notes/FerroTrack — never track it.
+notes
