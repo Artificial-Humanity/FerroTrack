@@ -323,14 +323,32 @@ repository description at creation (2026-08-28).
           key and **silently drops it** — the same silent-absence shape the actors block
           and the `workflow` key both had.
        3. Apply any roster or persona changes to this repo's `FerroStep/` folder.
-       4. **Verify BEHAVIOURALLY, not by version string.** Exercise the new capability
-          against the real file and confirm the new behaviour appears.
+       4. **Verify BEHAVIOURALLY — and read the stamp back against HEAD, which is a
+          second check, not the same one.** Exercise the new capability against the real
+          file and confirm the new behaviour appears. Since FerroStep `5fed239` the binary
+          also reports the commit it was built from (`ferrostep --version`), which finally
+          gives this repo an artifact to compare its prose against — but ⚠⚠ **the stamp is
+          a build artifact too.** Measured in the sibling 2026-09-09: `cargo install
+          --force` relinked and reused a stamp cargo saw no reason to recompute, so the
+          tool named a commit it was not built from. Compare `ferrostep --version` against
+          `git rev-parse --short=7 HEAD` in the sibling checkout; **a mismatch accuses the
+          stamp, not the binary**, so rebuild before concluding anything about behaviour.
+          A `+changes` suffix means the build came from a modified tree and is no commit
+          at all.
        5. ⚠⚠ **Update the recorded SHA below as part of the install, not afterwards.**
      - ⚠⚠ **Step 5 exists because the record went stale exactly once already, and silently.**
        The SHA below said `c475ed5` from 2026-08-29 until 2026-09-07, while the installed
        binary had been rebuilt on 2026-09-03. Nothing detected it, because nothing compares
        prose to a binary. **A procedure whose last step is a courtesy is a procedure whose
        last step does not happen.**
+     - ⚠⚠ **Step 5 is necessary and NOT sufficient, which this record learned on
+       2026-09-10.** It only fires when THIS repo installs. The binary is workspace-wide, so
+       the sibling's own resident rebuilding it — as they did on 2026-09-09, to ship the
+       build stamp itself — re-dates this repo's record with **no step of this procedure
+       running at all**. The line below said `a20c047` while the installed tool was nine
+       commits past it, and nothing this repo did was involved. **Compare the stamp to the
+       sibling's HEAD on ARRIVAL, not only when installing**: it is one command, and it is
+       the only moment this class is visible.
      - ✅ **The behavioural check is the reliable one — prefer the artifact that changes
        when the fact changes.** The 2026-09-03 drift was caught this way, not by a version
        string: `agent-env` resolved a `FerroStep/config.yaml` deployment folder, and that
@@ -340,11 +358,24 @@ repository description at creation (2026-08-28).
      day): the resident holds the `developer` entry and a second agent holds `reviewer`.**
      Both identities are SET in [`config.yaml`](FerroStep/config.yaml), the one copy — prose points
      there and deliberately restates no value. The `ferrostep` binary is installed from the sibling
-     checkout at **`a20c047`, built 2026-09-08** — the pull that took the fix for a defect this
-     repo's resident reported (FerroStep #354: `agent-env --format json` omitted keys the
-     shell form emitted). Previously `622d71e`, which took the roster's `budget_usd` field. (This line read `c475ed5` for four days while the installed binary
+     checkout at **`57fc201`, built 2026-09-10** — the pull that took the `--version` build
+     stamp (`5fed239`, with `648f22f` making the stamp follow HEAD) and the roster's corrected
+     deployment-folder test: a folder holding a roster counts as a deployment folder **unless
+     it is itself a checkout**, replacing a one-day-old test that keyed on the folder holding
+     `personas/`. ✅ **No change was needed here, and that is a measurement rather than a
+     skip**: this repo's `FerroStep/` folder holds `personas/` and has no `.git`, so it
+     classifies the same under both tests, and `agents_reach` correctly defaults to `below`
+     with nothing beneath this repo. Verified by behaviour rather than by the version line:
+     `--version` answers with no roster present; at the workspace root — where a bare roster
+     and a `FerroStep/` **checkout** sit at the same level — the bare roster answers and
+     refuses honestly rather than resolving as the checkout's agent; and this repo resolves
+     `developer` with both encodings carrying the same key set. Previously `a20c047`, which
+     took the fix for a defect this repo's resident reported (FerroStep #354: `agent-env
+     --format json` omitted keys the shell form emitted); `622d71e` before that, which took
+     the roster's `budget_usd` field. (This line read `c475ed5` for four days while the installed binary
      was `7eec614`; corrected 2026-09-07, and step 5 of the pull procedure exists so it does
-     not recur.) Reinstalled 2026-08-29 when the create guard landed — the emission lives in the generator, so an old emitter reads a config
+     not recur — though see the limit recorded against step 5: it did not prevent the
+     2026-09-09 recurrence, because that install was not ours.) Reinstalled 2026-08-29 when the create guard landed — the emission lives in the generator, so an old emitter reads a config
      carrying the new `workflow` key and silently drops it: reinstall BEFORE
      regenerate, verify `not_initial_state` in the emitted file, then install.
      Previously `ff95ff4`, and `881e20aa` before that, each for the same reason),
