@@ -5,7 +5,7 @@
 > document that answers it.
 >
 > ⚠ **THIS FILE OWNS NOTHING BUT §1.** Every constraint and decision below is held in
-> [`AGENTS.md`](AGENTS.md) or a note under `notes/`, and the owning file is named at each
+> [`AGENTS.md`](AGENTS.md) or a working note, and the owning file is named at each
 > one. **If this file and the owning file disagree, the owning file wins and this one is
 > the defect.** A second copy nobody compares is a failure this workspace has paid for
 > repeatedly.
@@ -24,7 +24,8 @@
 > particular. ⚠ **It has deliberately NOT been rewritten**, because §1 is the owner's and
 > the rule above says an agent may draft and mark, never decide. The rewrite is now owed
 > twice over: once for ratification, once for the split.
-> Everything that moved is in [`notes/ferrowire-handoff.md`](notes/ferrowire-handoff.md).
+> Everything that moved is in `notes/ferrowire-handoff.md` — a private working note,
+> cited by name and not linked; see the same warning in [`AGENTS.md`](AGENTS.md).
 
 ---
 

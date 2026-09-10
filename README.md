@@ -8,8 +8,9 @@ FerroStep's other ledger adapters remain supported; FerroTrack is the default, n
 only option.
 
 **Status: pre-alpha.** The repository was created on 2026-08-28 and no product code
-exists yet. [`north-star.md`](north-star.md) is where things stand; `notes/` carries the
-research the decisions were made on.
+exists yet. [`north-star.md`](north-star.md) is where things stand. The research each
+decision was made on is kept in private working notes, cited by name in
+[`AGENTS.md`](AGENTS.md) rather than published here.
 
 ## License
 

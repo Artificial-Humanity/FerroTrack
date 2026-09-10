@@ -8,6 +8,13 @@ repository description at creation (2026-08-28).
 > instructions, each with its source — it makes no new rulings of its own. The owner has
 > not yet ratified the file as a whole.
 
+> ⚠ **A `notes/…` reference names a file in a SEPARATE PRIVATE REPO, not a path in this
+> one.** The working notes moved out on 2026-09-08, so a reader of the published repo will
+> not find them here. They are still cited **by name** below, because which document holds
+> the reasoning behind a decision is itself a fact worth recording — and deliberately **not
+> linked**, because a link that cannot resolve promises a reader something this repo does
+> not have.
+
 ## What the owner has decided
 
 1. **Sibling project: FerroStep.** FerroTrack is built in Rust as the agent-focused
@@ -31,7 +38,7 @@ repository description at creation (2026-08-28).
      the owner's stated grounds that **deriving from a permissive base has become
      materially more reachable in recent years.**
      The reasons, the ideal-datastore requirements, and where redb and fjall each fall
-     short are recorded in [`notes/ideal-datastore.md`](notes/ideal-datastore.md).
+     short are recorded in `notes/ideal-datastore.md`.
      ⚠ **This does not soften item 1.** Whichever rung is standing, the move is never to
      bend the ledger contract toward the native store — and that rule is also what keeps
      rung 3 cheap, since the two-implementation floor already requires the store to sit
@@ -54,12 +61,12 @@ repository description at creation (2026-08-28).
         authorised building on a permissive base — so the escape hatch was approved before
         the risk was measured. ⚠ It stays a real risk, correctly weighted: it is now a
         reason to keep the fork option live, not a reason to prefer fjall.
-     2. ⚠ **The acceptance bar in [`notes/ferrostep-contract-fit.md`](notes/ferrostep-contract-fit.md)
+     2. ⚠ **The acceptance bar in `notes/ferrostep-contract-fit.md`
         is unmeasured on redb** — above all the conditional update evaluated INSIDE the
         transaction, tested at the call site with a control so a conflict-free pass cannot
         be mistaken for a vacuous one. That measurement outranks the reasoning that
         produced this ruling.
-   - **Why redb over fjall** (full comparison in [`notes/store-criteria.md`](notes/store-criteria.md)):
+   - **Why redb over fjall** (full comparison in `notes/store-criteria.md`):
      ACID single-writer is redb's default and cannot be opted out of, where fjall's
      transactions are opt-in with a **silent** non-transactional path — a weak guarantee in
      a codebase agents contribute to. fjall's clearest advantage, compaction filters,
@@ -75,7 +82,7 @@ repository description at creation (2026-08-28).
      choices that were never compared.** Flagged as a gap in the evaluation, not as an
      objection to the ruling.
    - ✅ **The settled stack excludes tantivy**, which places search at phases 0–2 of the
-     roadmap in [`notes/store-criteria.md`](notes/store-criteria.md).
+     roadmap in `notes/store-criteria.md`.
    - ✅ **SEARCH IS NOW FULLY DECIDED (owner, 2026-09-04)** — (b), (c) and (d) all answered:
      - **(b) The public query surface promises KEYWORD SEARCH, FIELD-WEIGHTED**: multi-word
        boolean matching over title / description / body, with a title match outranking a
@@ -181,10 +188,10 @@ repository description at creation (2026-08-28).
      database, so much of that tree is machinery FerroTrack would pull in anyway. What
      survives the caveat is the C requirement and *inherited versus chosen* — 305 arrive
      as a set.
-   - **Candidate research:** [`notes/redb-research.md`](notes/redb-research.md) is the
+   - **Candidate research:** `notes/redb-research.md` is the
      evaluation template every candidate is written against;
-     [`notes/surrealdb-research.md`](notes/surrealdb-research.md) is the scratched
-     candidate, kept as evidence. [`notes/ferrostep-contract-fit.md`](notes/ferrostep-contract-fit.md)
+     `notes/surrealdb-research.md` is the scratched
+     candidate, kept as evidence. `notes/ferrostep-contract-fit.md`
      carries the store-neutral acceptance bar. ⚠⚠ **No candidate has been evaluated
      against that bar — both notes are characterization.** The one hard number in the
      whole evaluation is the dependency measurement above.
@@ -209,7 +216,7 @@ repository description at creation (2026-08-28).
    2026-08-28; install authorized the same day: the owner coordinates, **this repo's
    resident authors the config details, FerroStep's resident guides and reviews**). The
    deployment brief in
-   [`notes/ferrostep-deployment-brief.md`](notes/ferrostep-deployment-brief.md) is the
+   `notes/ferrostep-deployment-brief.md` is the
    vocabulary. Settled the same day, superseding an earlier store-less reading: **the
    ledger is a PocketBase deployment in MAPPED shape** — FerroStep's referee over
    collections this repo itself introduces.
@@ -492,7 +499,7 @@ repository description at creation (2026-08-28).
       3 and 4 of the original brief — inter-agent communications routing on a registry,
       the wake-up mechanism, and task scheduling — **are no longer FerroTrack's concerns.**
       Everything FerroTrack decided about them is collected in
-      [`notes/ferrowire-handoff.md`](notes/ferrowire-handoff.md) for handoff, and is
+      `notes/ferrowire-handoff.md` for handoff, and is
       deliberately not restated here.
       ⚠ **The one question the split leaves open, and FerroTrack cannot answer it alone:
       where the REGISTRY lives.** The original brief said one registry serves both
@@ -515,7 +522,7 @@ repository description at creation (2026-08-28).
         ⚠⚠ **So the real evaluation axis is the owner's own question: HOW MUCH OF THE
         PLUMBING DOES FERROTRACK HANDLE?** Not "which features does the store have" —
         every feature in item 9 is FerroTrack's to present regardless. See
-        [`notes/store-criteria.md`](notes/store-criteria.md), which is organised on that
+        `notes/store-criteria.md`, which is organised on that
         axis and carries the measurement.
      2. **Other databases may be considered** if they support these features more readily
         and spare FerroTrack the plumbing.
@@ -537,12 +544,12 @@ repository description at creation (2026-08-28).
      must be a network protocol rather than an API — the shape the brief implies is
      **FerroTrack as a server with an embedded store**, which is what requirement 1's
      PocketBase analogy said all along. ✅ **Consequence for the evaluation: the database
-     question gets SMALLER, not larger.** See [`notes/store-criteria.md`](notes/store-criteria.md).
+     question gets SMALLER, not larger.** See `notes/store-criteria.md`.
    - ⚠⚠ **MOVED TO FerroWire 2026-09-07.** The runtime semantics decided on 2026-09-04 —
      connection-based liveness, at-least-once delivery with acknowledgement and a TTL, and
      the format of an agent address — **belong to the communication product and are no
      longer FerroTrack's.** They are recorded with their reasoning in
-     [`notes/ferrowire-handoff.md`](notes/ferrowire-handoff.md).
+     `notes/ferrowire-handoff.md`.
      ✅ **What survives here is the distribution decision, which was made in the same
      breath and is not a communication concern:** FerroTrack ships as a **single static
      binary** that creates its redb file on first run, **and a library crate** is published
